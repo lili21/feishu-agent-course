@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="《不用 @ 的 AI 同事》第 1 章：机器人和同事差在哪。两种群机器人的对比回放。">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>机器人和同事差在哪</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: book typography on parchment (Kami rules: one serif, 400/500 only, no bold, no italic, one ink-blue accent, warm greys). Reading column 680px; simulator and figures run wider. No page-as-sheet, no shadows. Diagrams follow diagram-design: orthogonal connectors, masked labels, 4px grid, step-mode motion. Single light theme by choice. */
+:root{
+  color-scheme:light;
+  --parchment:#F5F4ED; --ivory:#FAF9F5; --code:#F0EEE6; --sand:#E8E6DC;
+  --ink:#141413; --ink2:#3D3D3A; --olive:#504E49; --stone:#6B6A64;
+  --border:#E8E6DC; --border2:#D9D6CA;
+  --brand:#1B365D; --brand-tint:#EEF2F7; --tag:#E4ECF5;
+  --go:#2E6A4A; --go-tint:#E4ECE1;
+  --ask:#8A5A12; --ask-tint:#F2E8D3;
+  --stop:#9A2E2A; --stop-tint:#F2E0DB;
+  --hl-kw:#1B365D; --hl-type:#2E6A4A; --hl-str:#9A5B13; --hl-com:#8E8A7E; --hl-num:#7A3E6B; --hl-fn:#A0442A;
+  --serif:"Noto Serif SC","Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --mono:"JetBrains Mono","SF Mono",Consolas,"Noto Serif SC","Source Han Serif SC",monospace;
+  --motion-fast:160ms; --motion-step:480ms; --motion-hold:1200ms; --motion-total:6000ms; --motion-ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{background:var(--parchment)}
+body{color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55;letter-spacing:.02em;font-weight:400}
+button,input,select{font-family:var(--serif);letter-spacing:.02em}
+h1,h2,h3{font-weight:500;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--brand)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.page{max-width:1040px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:60px}
+.runhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--stone);letter-spacing:.12em;border-bottom:1px solid var(--border);padding-bottom:10px}
+.folio{display:flex;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--stone);letter-spacing:.1em}
+.col{max-width:680px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+@media (min-width:960px){.col > figure.wide{width:calc(100% + 120px);margin-left:-60px}}
+
+/* chapter opener */
+.opener{max-width:780px;width:100%;margin:16px auto 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 28px;align-items:end}
+.ch-num{font-size:132px;line-height:.82;color:var(--border2);font-weight:400;letter-spacing:0}
+.ch-label{font-size:13px;letter-spacing:.3em;color:var(--brand);display:block;margin-bottom:8px}
+h1{font-size:clamp(34px,6vw,50px);line-height:1.12;letter-spacing:.02em}
+.opener .lede{grid-column:1 / -1;font-size:18.5px;line-height:1.6;color:var(--ink2);max-width:40em;margin-top:18px}
+.keypoints{grid-column:1 / -1;display:flex;flex-direction:column;gap:2px;margin-top:6px;padding:14px 18px;background:var(--ivory);border-radius:4px;font-size:15px;color:var(--olive)}
+.keypoints span:first-child{font-size:12.5px;letter-spacing:.2em;color:var(--stone);margin-bottom:4px}
+@media (max-width:560px){.ch-num{font-size:84px}.opener{column-gap:16px}}
+
+.sec-no{font-family:var(--mono);font-size:14px;color:var(--brand);letter-spacing:.06em}
+h2{font-size:clamp(23px,3.2vw,27px);line-height:1.3}
+h3{font-size:17px;line-height:1.45}
+.lead{font-size:17.5px;color:var(--ink2)}
+.small{font-size:14.5px}
+.muted{color:var(--stone)}
+.figlabel{font-size:13.5px;color:var(--olive)}
+.figlabel b{font-weight:500;color:var(--ink);margin-right:8px}
+
+/* simulator */
+.plate{display:flex;flex-direction:column;gap:10px}
+.hint{font-size:15px;color:var(--olive);max-width:46em}
+.hint span{color:var(--brand)}
+.sim{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);border:1px solid var(--border2);border-radius:6px;background:var(--ivory);overflow:hidden}
+@media (max-width:900px){.sim{grid-template-columns:minmax(0,1fr)}}
+.chat{display:flex;flex-direction:column;border-right:1px solid var(--border2);min-width:0}
+@media (max-width:900px){.chat{border-right:0;border-bottom:1px solid var(--border2)}}
+.chat-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.chat-head b{font-size:15px;font-weight:500}
+.chat-head span{font-size:12.5px;color:var(--stone)}
+.feed{height:380px;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;background:var(--code)}
+.sys{font-size:12.5px;color:var(--stone);text-align:center}
+.msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}
+.av{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;font-size:14px;background:var(--sand);color:var(--ink2)}
+.msg.me-bot .av{background:var(--brand);color:var(--ivory)}
+.who{font-size:12.5px;color:var(--stone);line-height:1.4}
+.bubble{display:inline-block;background:var(--ivory);border:1px solid var(--border2);border-radius:2px 8px 8px 8px;padding:5px 10px;font-size:15px;line-height:1.55;max-width:100%;overflow-wrap:anywhere}
+.msg.me-bot .bubble{background:var(--brand-tint);border-color:#C9D5E4}
+.verdict{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--stone)}
+.reply-btn{margin-top:6px;display:inline-block;font-size:13px;padding:3px 12px;border-radius:999px;border:1px solid var(--brand);background:var(--ivory);color:var(--brand);cursor:pointer}
+.reply-btn:disabled{opacity:.45;cursor:default}
+.presets{padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font-size:13px;padding:3px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer;text-align:left;line-height:1.55}
+.presets button:hover{background:var(--tag);color:var(--brand)}
+.presets .muted{color:var(--stone)}
+.composer{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:10px 16px 14px}
+.composer select,.composer input{font-size:15px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);padding:6px 8px;min-width:0}
+.send{border:0;border-radius:4px;background:var(--brand);color:var(--ivory);padding:6px 16px;cursor:pointer;font-size:15px}
+@media (max-width:420px){.composer{grid-template-columns:minmax(0,1fr) auto}.composer select{grid-column:1 / -1}}
+details.cfg{border-top:1px solid var(--border);padding:10px 16px 14px}
+details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
+.cfg-body{display:flex;flex-direction:column;gap:12px;margin-top:10px;font-size:14px}
+.cfg-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.cfg-label{font-size:12.5px;color:var(--stone);width:100%;letter-spacing:.06em}
+.cfg-body label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.cfg-body input[type=checkbox]{accent-color:var(--brand)}
+.cfg-body select{font-size:13.5px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);padding:2px 6px}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.rules label{flex-direction:column;align-items:flex-start;gap:2px}
+
+.trace{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.trace-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:center}
+.trace-top .now{font-size:15px;min-width:0;overflow-wrap:anywhere}
+.trace-meta{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+.stats{font-family:var(--mono);font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:500}
+.speed{display:inline-flex;align-items:center;gap:2px;font-size:12.5px;color:var(--stone)}
+.speed button{border:0;background:transparent;color:var(--stone);padding:2px 8px;border-radius:999px;cursor:pointer;font-size:12.5px}
+.speed button[aria-pressed="true"]{background:var(--tag);color:var(--brand)}
+
+.flow-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px;background:var(--parchment);padding:6px 8px}
+#flow{display:block;width:100%;height:auto;min-width:560px;color:var(--stone)}
+.fl-dash{stroke-dasharray:5 4}
+.fl-node rect{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2;transition:stroke .25s ease,fill .25s ease,stroke-width .25s ease}
+.fl-node.model rect{fill:var(--brand-tint);stroke:var(--brand)}
+.fl-node.hit-pass rect{stroke:var(--go);stroke-width:2.6}
+.fl-node.hit-fail rect{stroke:var(--stop);stroke-width:2.6;fill:var(--stop-tint)}
+.fl-node.hit-think rect{stroke-width:3}
+.fl-bin rect{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2;transition:stroke-width .25s ease}
+.fl-bin text{font-size:12.5px;font-family:var(--serif);font-weight:500}
+.fl-bin .fl-n{font-family:var(--mono)}
+.b-drop rect,.b-ignore rect{fill:var(--sand)} .b-drop text,.b-ignore text{fill:var(--olive)}
+.b-stop rect{fill:var(--stop-tint);stroke:var(--stop)} .b-stop text{fill:var(--stop)}
+.b-observe rect{fill:var(--brand-tint);stroke:var(--brand)} .b-observe text{fill:var(--brand)}
+.b-ask rect{fill:var(--ask-tint);stroke:var(--ask)} .b-ask text{fill:var(--ask)}
+.b-accept rect{fill:var(--go-tint);stroke:var(--go)} .b-accept text{fill:var(--go)}
+.fl-bin.lit rect{stroke-width:3.2}
+.tok-r{fill:var(--ivory);stroke:var(--brand);stroke-width:1.6}
+.tok-t{fill:var(--ink);font-size:12px;font-family:var(--serif)}
+#tok{transition:opacity .35s ease}
+#tok.gone{opacity:0}
+#tok.k-drop .tok-r,#tok.k-ignore .tok-r{stroke:var(--stone)}
+#tok.k-stop .tok-r{stroke:var(--stop)}
+#tok.k-observe .tok-r{stroke:var(--brand)}
+#tok.k-ask .tok-r{stroke:var(--ask)}
+#tok.k-accept .tok-r{stroke:var(--go)}
+.cost-pop{fill:var(--brand);font-size:11.5px;font-family:var(--mono);opacity:0;transition:opacity .3s ease}
+.cost-pop.show{opacity:1}
+
+.stages{display:flex;flex-direction:column;gap:8px}
+.stage{border:1px solid var(--border2);border-radius:4px;padding:9px 14px;background:var(--ivory);transition:opacity .35s ease}
+.stage.pending{opacity:.3}
+.stage.skip{opacity:.5;border-style:dashed}
+.st-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.st-n{font-family:var(--mono);font-size:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border2);color:var(--stone)}
+.st-name{font-weight:500;font-size:15px}
+.cost{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:999px;background:var(--sand);color:var(--olive)}
+.cost.model{background:var(--tag);color:var(--brand)}
+.st-res{margin-left:auto;font-size:13px;font-weight:500}
+.stage.pass .st-res{color:var(--go)} .stage.fail .st-res{color:var(--stop)} .stage.skip .st-res{color:var(--stone)}
+.stage.pass .st-n{border-color:var(--go);color:var(--go)} .stage.fail .st-n{border-color:var(--stop);color:var(--stop)}
+.checks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.5}
+.checks li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px}
+.checks li::before{font-family:var(--mono)}
+.checks li.ok::before{content:"✓";color:var(--go)}
+.checks li.no::before{content:"✗";color:var(--stop)}
+.checks li.info::before{content:"·";color:var(--stone)}
+.checks li.warn::before{content:"!";color:var(--ask)}
+.checks .note{color:var(--stone)}
+
+.decision{border-radius:4px;padding:11px 14px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--border2);transition:opacity .35s ease}
+.decision.pending{opacity:.3}
+.d-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:12.5px;font-weight:500;padding:1px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.k-drop,.k-ignore{color:var(--olive)} .k-observe{color:var(--brand)} .k-ask{color:var(--ask)} .k-accept{color:var(--go)} .k-stop{color:var(--stop)}
+.decision.k-drop,.decision.k-ignore{background:var(--sand)}
+.decision.k-observe{background:var(--brand-tint);border-color:var(--brand)}
+.decision.k-ask{background:var(--ask-tint);border-color:var(--ask)}
+.decision.k-accept{background:var(--go-tint);border-color:var(--go)}
+.decision.k-stop{background:var(--stop-tint);border-color:var(--stop)}
+.decision .why{color:var(--ink);font-size:14.5px}
+.decision .say{font-size:14.5px;color:var(--ink)}
+.decision .say span{color:var(--stone)}
+
+details.peek{border-top:1px dashed var(--border2);padding-top:10px}
+details.peek summary{cursor:pointer;font-size:14px;color:var(--olive)}
+.peek-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
+@media (max-width:640px){.peek-grid{grid-template-columns:minmax(0,1fr)}}
+.peek-grid .lbl{font-size:12.5px;color:var(--stone);margin-bottom:4px}
+
+/* code + syntax highlighting */
+pre.code{margin:0;background:var(--code);color:var(--ink);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12.8px;line-height:1.65;letter-spacing:0;overflow-x:auto;white-space:pre;tab-size:2;font-variant-ligatures:none}
+.tk-k{color:var(--hl-kw);font-weight:500}
+.tk-t{color:var(--hl-type)}
+.tk-s{color:var(--hl-str)}
+.tk-c{color:var(--hl-com)}
+.tk-n{color:var(--hl-num)}
+.tk-f{color:var(--hl-fn)}
+.tk-p{color:var(--hl-kw)}
+.code-wrap{position:relative}
+.code-wrap pre.code{padding-top:40px}
+.code-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px 0 14px;font-family:var(--mono);font-size:12px;color:var(--stone)}
+.copy{font-size:12.5px;padding:2px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer;font-family:var(--serif)}
+
+/* figures */
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.diagram-container{width:100%;overflow-x:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0}
+.diagram-container svg{display:block;width:100%;height:auto;min-width:760px;color:var(--stone)}
+figcaption{font-size:14px;color:var(--olive);line-height:1.55}
+figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
+.sv-box{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2}
+.sv-bot{fill:var(--brand-tint);stroke:var(--brand);stroke-width:1.2}
+.sv-soft{fill:var(--sand);stroke:var(--border2);stroke-width:1}
+.sv-t{fill:var(--ink);font-size:14px;font-weight:500;font-family:var(--serif)}
+.sv-s{fill:var(--olive);font-size:12.5px;font-family:var(--serif)}
+.sv-m{fill:var(--stone);font-size:11.5px;font-family:var(--mono)}
+.sv-stop{fill:var(--stop);font-size:12.5px;font-weight:500;font-family:var(--serif)}
+.sv-ln{stroke:currentColor;stroke-width:1.2;fill:none}
+.sv-ln-stop{stroke:var(--stop);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+.sv-mk{fill:currentColor}
+.sv-dot{fill:var(--brand)}
+.sv-axis{stroke:var(--border2);stroke-width:1}
+.mask-p{fill:var(--parchment)}
+
+/* diagram-design motion (step mode) */
+.motion-ready [data-motion-item]{opacity:.12;transform:translateY(8px);transform-box:fill-box;transform-origin:center;transition:opacity var(--motion-step) var(--motion-ease),transform var(--motion-step) var(--motion-ease)}
+.motion-ready [data-motion-item].is-visible,.motion-ready[data-frame="end"] [data-motion-item],.motion-ready[data-frame="static"] [data-motion-item]{opacity:1;transform:none}
+.draw-path{fill:none;stroke:var(--brand);stroke-width:3;stroke-dasharray:1;stroke-dashoffset:1;pointer-events:none}
+.motion-ready .draw-path.is-visible{animation:draw-path var(--motion-step) linear forwards}
+@keyframes draw-path{to{stroke-dashoffset:0}}
+[data-motion-controls]{display:none;align-items:center;flex-wrap:wrap;gap:8px}
+.motion-ready [data-motion-controls]{display:flex}
+[data-motion-controls][hidden]{display:none !important}
+[data-motion-controls] button{min-width:44px;min-height:44px;padding:8px 14px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);font-size:14px;cursor:pointer}
+[data-motion-controls] button:hover{border-color:var(--brand);color:var(--brand)}
+[data-motion-controls] button[data-motion-action="play"]{background:var(--brand);border-color:var(--brand);color:var(--ivory)}
+[data-motion-controls] button:disabled{cursor:not-allowed;opacity:.45}
+.keyboard-help{font-size:12.5px;color:var(--stone)}
+[data-motion-status-visible]{margin-left:auto;font-size:13px;color:var(--olive);font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html[data-motion="static"] [data-motion-controls],html[data-motion="static"] [data-motion-decorative]{display:none !important}
+html[data-motion="static"] [data-motion-item]{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+html[data-motion="step"] [data-motion-controls],html[data-motion="step"] [data-motion-decorative]{display:none !important}
+html[data-motion="step"] [data-motion-item]{animation:none !important;transition:none !important}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important}
+  [data-motion-item]{opacity:1 !important;transform:none !important}
+  [data-motion-decorative]{display:none !important}
+  [data-motion-controls]{display:none !important}
+}
+@media print{
+  .diagram-container{overflow-x:visible}
+  .diagram-container svg{min-width:0}
+  [data-motion-controls],[data-motion-decorative]{display:none !important}
+  [data-motion-item]{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;background:var(--ivory);border-radius:4px;padding:16px 20px}
+@media (max-width:600px){.calc{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:2px}
+.field label{display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+.field output{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.field input{width:100%;accent-color:var(--brand)}
+.calc-out{display:flex;flex-direction:column;gap:8px}
+.meter{display:flex;height:18px;border-radius:3px;overflow:hidden;background:var(--sand)}
+.meter .m-model{background:var(--brand);transition:width .3s ease}
+.calc-out .big{font-family:var(--mono);font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2}
+.calc-out .row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--olive)}
+.calc-out .row span:first-child{color:var(--brand)}
+
+.tbl{overflow-x:auto;border-top:1px solid var(--ink2);border-bottom:1px solid var(--ink2)}
+.tbl table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
+.tbl th,.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:400}
+.tbl thead th{font-size:13px;color:var(--olive);letter-spacing:.06em;border-bottom:1px solid var(--border2)}
+.tbl.rh tbody th{white-space:nowrap;color:var(--ink2)}
+.tbl tr:last-child td,.tbl tr:last-child th{border-bottom:0}
+
+.quiz{display:flex;flex-direction:column;gap:22px}
+.q{display:flex;flex-direction:column;gap:10px}
+.q h3{font-size:16.5px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{font-size:14.5px;padding:4px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--ivory);color:var(--ink);cursor:pointer}
+.opts button:hover{border-color:var(--brand)}
+.opts button.right{border-color:var(--go);background:var(--go-tint);color:var(--go)}
+.opts button.wrong{border-color:var(--stop);background:var(--stop-tint);color:var(--stop)}
+.q .exp{font-size:15px;background:var(--ivory);border-radius:4px;padding:10px 14px;color:var(--ink2)}
+
+.next{display:flex;flex-direction:column;gap:4px;background:var(--ivory);border-radius:4px;padding:16px 20px}
+.next .ch{font-size:12.5px;letter-spacing:.2em;color:var(--brand)}
+.notes{font-size:13.5px;color:var(--stone);border-top:1px solid var(--border);padding-top:14px;line-height:1.6}
+@media (prefers-reduced-motion:reduce){.stage,.decision,.meter .m-model,#tok,.fl-node rect{transition:none}}
+
+/* navigation (shared across chapters) */
+.runhead a{color:inherit;text-decoration:none}
+.runhead a:hover{color:var(--brand)}
+a.next{text-decoration:none;color:inherit;border:1px solid transparent}
+a.next:hover{border-color:var(--brand)}
+a.next:hover h3{color:var(--brand)}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14.5px}
+.pager a{color:var(--brand);text-decoration:none}
+.pager a:hover{text-decoration:underline}
+/* generic controls */
+.btn{min-height:44px;padding:8px 16px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);font-size:14.5px;cursor:pointer}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--ivory)}
+.btn.primary:hover{color:var(--ivory)}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--border2);border-radius:4px;overflow:hidden;background:var(--ivory)}
+.seg button{min-height:40px;padding:6px 14px;border:0;background:transparent;color:var(--ink2);font-size:14px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--border2)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--ivory)}
+.free{font-size:12px;letter-spacing:.08em;padding:1px 8px;border-radius:999px;background:var(--go-tint);color:var(--go);white-space:nowrap}
+
+/* ch1: two-lane chat comparison + response-time timeline */
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:820px){.duo{grid-template-columns:minmax(0,1fr)}}
+.lane{border:1px solid var(--border2);border-radius:6px;background:var(--ivory);display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.lane.agent{border-color:var(--brand)}
+.lane-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.lane-head b{font-size:15px;font-weight:500}
+.lane-head span{font-size:12.5px;color:var(--stone)}
+.lane .feed{height:430px}
+@media (max-width:820px){.lane .feed{height:280px}}
+.msg.fresh{animation:fresh .45s ease}
+@keyframes fresh{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.verdict .why{color:var(--olive)}
+.verdict.miss{color:var(--stop)}
+.verdict .pill{font-size:11.5px;padding:0 7px}
+.who .re{color:var(--brand)}
+.tally{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--border)}
+.tally div{padding:10px 16px;display:flex;flex-direction:column}
+.tally div + div{border-left:1px solid var(--border)}
+.tally b{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.3}
+.tally span{font-size:12.5px;color:var(--stone)}
+.tally .good b{color:var(--go)} .tally .bad b{color:var(--stop)} .tally .warn b{color:var(--ask)}
+.player{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.player .pos{margin-left:auto;font-size:13px;color:var(--olive);font-variant-numeric:tabular-nums}
+
+.lab{display:flex;flex-direction:column;gap:14px;background:var(--ivory);border-radius:4px;padding:16px 20px}
+.lab-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px}
+.lab-ctl .field{min-width:200px;flex:1}
+.lab-ctl .field.off{opacity:.4}
+.g-rows{display:flex;flex-direction:column;gap:8px}
+.g-row{display:grid;grid-template-columns:136px minmax(0,1fr) 112px;gap:12px;align-items:center;font-size:14px}
+.g-label{display:flex;flex-direction:column;line-height:1.35;min-width:0}
+.g-label .t{font-family:var(--mono);color:var(--stone);font-size:11.5px}
+.g-track{position:relative;height:24px;background:var(--parchment);border-radius:2px}
+.g-wait{position:absolute;top:11px;height:2px;background:var(--border2);transition:left .45s ease,width .45s ease}
+.g-work{position:absolute;top:4px;height:16px;border-radius:2px;background:var(--brand);transition:left .45s ease,width .45s ease}
+.g-work.qa{background:var(--go)} .g-work.noise{background:var(--stone)}
+.g-work.gone{opacity:0}
+.g-resp{position:absolute;top:-3px;width:3px;height:30px;margin-left:-1px;background:var(--ask);border-radius:1px;transition:left .45s ease}
+.g-out{font-size:12.5px;color:var(--olive);text-align:right;line-height:1.35}
+.g-out b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+.g-axis{display:grid;grid-template-columns:136px minmax(0,1fr) 112px;gap:12px}
+.g-ticks{position:relative;height:16px;font-family:var(--mono);font-size:11px;color:var(--stone)}
+.g-ticks span{position:absolute;transform:translateX(-50%)}
+.g-ticks span:first-child{transform:none}
+.g-legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--olive)}
+.g-legend i{display:inline-block;width:14px;height:8px;border-radius:1px;margin-right:6px;vertical-align:middle}
+.g-sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border-top:1px solid var(--border);padding-top:12px}
+.g-sum div{display:flex;flex-direction:column}
+.g-sum b{font-family:var(--mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.25}
+.g-sum span{font-size:13px;color:var(--olive)}
+@media (max-width:600px){.g-row,.g-axis{grid-template-columns:92px minmax(0,1fr) 72px;gap:8px}.g-row{font-size:13px}}
+.map{display:flex;flex-direction:column;border-top:1px solid var(--ink2);border-bottom:1px solid var(--ink2)}
+.map li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:baseline;padding:9px 4px;border-bottom:1px solid var(--border)}
+.map li:last-child{border-bottom:0}
+.map .no{font-family:var(--mono);font-size:13px;color:var(--brand)}
+.map .t{font-size:15.5px}
+.map .t span{display:block;font-size:13.5px;color:var(--stone)}
+.map a{color:var(--ink);text-decoration:none}
+.map a:hover{color:var(--brand)}
+ol.map{list-style:none;margin:0;padding:0}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="runhead"><a href="../">不用 @ 的 AI 同事</a><span>第一章　机器人和同事差在哪</span></div>
+
+<header class="opener">
+  <span class="ch-num" aria-hidden="true">1</span>
+  <div><span class="ch-label">第一章</span><h1>机器人和同事差在哪</h1></div>
+  <p class="lede">群里早就有机器人了：被 @ 才说话，问一句答一句。这门课要做的小橙不一样。它旁听整个群，自己认出哪条消息是要人做的事，拿不准就先问一句，接下来的活交给后台慢慢做，做完回到原来的线程里汇报。</p>
+  <div class="keypoints"><span>本章要点　约 12 分钟</span><span>普通群机器人和数字员工的三点差别</span><span>为什么要把它拆成 Router 和 Worker 两半</span><span>学完这门课，你手里会有什么</span></div>
+</header>
+
+<!-- ============ HERO: two lanes ============ -->
+<section class="plate" aria-label="两个群的对比回放">
+  <p class="hint"><span>先看一段回放。</span>同一段群聊，左边群里装的是普通群机器人，右边是数字员工小橙。点“播放”，两边同时往下走，看谁接住了哪件事。</p>
+  <div class="player">
+    <button class="btn primary" type="button" id="h-play">播放</button>
+    <button class="btn" type="button" id="h-next">下一条</button>
+    <button class="btn" type="button" id="h-reset">重来</button>
+    <span class="pos" id="h-pos" aria-live="polite"></span>
+  </div>
+  <div class="duo">
+    <div class="lane">
+      <div class="lane-head"><b># 移动端研发群</b><span>装了普通群机器人“群助手”</span></div>
+      <div class="feed" id="feed-bot"></div>
+      <div class="tally" id="tally-bot"></div>
+    </div>
+    <div class="lane agent">
+      <div class="lane-head"><b># 移动端研发群</b><span>装了数字员工“小橙”</span></div>
+      <div class="feed" id="feed-agent"></div>
+      <div class="tally" id="tally-agent"></div>
+    </div>
+  </div>
+  <p class="figlabel"><b>图 1-1</b>同一段群聊的两种结局。人物和对话为虚构示例。</p>
+</section>
+
+<!-- ============ 1.1 ============ -->
+<section class="col">
+  <span class="sec-no">1.1</span>
+  <h2>三点差别</h2>
+  <p class="lead">回放里，群助手只接住了一件事，另外两件它根本没听见。这不是因为它笨，是因为它的工作方式从一开始就定了：等人来叫。</p>
+  <p class="figlabel"><b>表 1-1</b>普通群机器人和数字员工的区别</p>
+  <div class="tbl rh">
+    <table>
+      <thead><tr><th></th><th>普通群机器人</th><th>数字员工小橙</th></tr></thead>
+      <tbody>
+        <tr><th>什么时候动</th><td>被 @、敲斜杠命令</td><td>旁听全部消息，自己判断要不要动</td></tr>
+        <tr><th>怎么判断</th><td>关键词匹配，或者把问题直接丢给模型</td><td>先用代码过滤，再查授权，最后让模型评估；拿不准就先问</td></tr>
+        <tr><th>怎么干活</th><td>当场回一句话</td><td>开一张工单，交给后台的 Worker 做几分钟到几小时</td></tr>
+        <tr><th>做完以后</th><td>没有“做完”这回事</td><td>回到原来的线程汇报结果，追问也在这个线程里接着聊</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>第三行最关键。群助手的一次回复只要几秒，所以它可以“边听边做”。小橙接的是修 bug、写方案这类活，一件就要几十分钟。如果它也边听边做，做活的时候群里说什么它都听不见。下一节解决这个问题。</p>
+</section>
+
+<!-- ============ 1.2 ============ -->
+<section class="col">
+  <span class="sec-no">1.2</span>
+  <h2>拆成两半：Router 和 Worker</h2>
+  <p class="lead">小橙内部分成两种角色。Router 只负责听和判断，每次几秒钟，永远不去干活。Worker 只负责干活，一件活一个 Worker，可以同时开好几个。两者之间靠一张工单交接。</p>
+  <figure class="wide" data-motion-root data-motion-mode="step" data-step-count="6" data-step-current="6" data-frame="static" data-static-frame="complete">
+    <div class="diagram-container">
+      <svg viewBox="0 0 760 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="f12-title f12-desc">
+        <title id="f12-title">数字员工的整体结构</title>
+        <desc id="f12-desc">群消息经事件接入进入 Router；Router 决定开工后开出工单，由 Worker 领取执行；Worker 做完回到群线程汇报；线程里的追问直达工单，不再经过 Router；Watchdog 盯着 Worker 的超时。</desc>
+        <defs><marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="sv-mk"/></marker></defs>
+
+        <g data-motion-item data-step="1" aria-label="第 1 步：飞书把群消息推给事件接入层">
+          <path d="M112,128 H166" class="sv-ln" marker-end="url(#b1)"/>
+          <rect x="124" y="104" width="32" height="16" class="mask-p"/><text x="140" y="117" text-anchor="middle" class="sv-s">推送</text>
+        </g>
+        <g data-motion-item data-step="2" aria-label="第 2 步：接入层把消息排进 Router 的队列，Router 几秒内做决定">
+          <path d="M272,128 H326" class="sv-ln" marker-end="url(#b1)"/>
+          <rect x="284" y="104" width="32" height="16" class="mask-p"/><text x="300" y="117" text-anchor="middle" class="sv-s">排队</text>
+        </g>
+        <g data-motion-item data-step="3" aria-label="第 3 步：Router 决定开工，开出工单，Worker 领取">
+          <path d="M440,128 H494" class="sv-ln" marker-end="url(#b1)"/>
+          <rect x="452" y="104" width="32" height="16" class="mask-p"/><text x="468" y="117" text-anchor="middle" class="sv-s">开单</text>
+          <path d="M592,128 H646" class="sv-ln" marker-end="url(#b1)"/>
+          <rect x="604" y="104" width="32" height="16" class="mask-p"/><text x="620" y="117" text-anchor="middle" class="sv-s">领取</text>
+        </g>
+        <g data-motion-item data-step="4" aria-label="第 4 步：Worker 做完，回到原来的群线程汇报">
+          <path d="M696,164 V196 A8,8 0 0 1 688,204 H72 A8,8 0 0 1 64,196 V166" class="sv-ln" marker-end="url(#b1)"/>
+          <rect x="324" y="195" width="120" height="18" class="mask-p"/><text x="384" y="208" text-anchor="middle" class="sv-s">做完，回线程汇报</text>
+        </g>
+        <g data-motion-item data-step="5" aria-label="第 5 步：线程里的追问直达工单，不再经过 Router">
+          <path d="M64,92 V48 A8,8 0 0 1 72,40 H536 A8,8 0 0 1 544,48 V90" class="sv-ln fl-dash" marker-end="url(#b1)"/>
+          <rect x="226" y="31" width="148" height="18" class="mask-p"/><text x="300" y="44" text-anchor="middle" class="sv-s">线程里的追问：直达工单</text>
+        </g>
+        <g data-motion-item data-step="6" aria-label="第 6 步：Watchdog 盯着 Worker，超时或卡死就重试或喊人">
+          <path d="M696,60 V90" class="sv-ln fl-dash" marker-end="url(#b1)"/>
+          <rect x="704" y="66" width="44" height="18" class="mask-p"/><text x="706" y="79" class="sv-s">盯超时</text>
+          <rect x="648" y="16" width="96" height="44" rx="4" class="sv-soft"/>
+          <text x="696" y="36" text-anchor="middle" class="sv-t">Watchdog</text><text x="696" y="52" text-anchor="middle" class="sv-m">第 9 章</text>
+        </g>
+
+        <rect x="16" y="92" width="96" height="72" rx="4" class="sv-box"/>
+        <text x="64" y="124" text-anchor="middle" class="sv-t">飞书群</text><text x="64" y="144" text-anchor="middle" class="sv-s">所有消息</text>
+        <rect x="168" y="92" width="104" height="72" rx="4" class="sv-box"/>
+        <text x="220" y="124" text-anchor="middle" class="sv-t">事件接入</text><text x="220" y="144" text-anchor="middle" class="sv-m">第 2 章</text>
+        <rect x="328" y="92" width="112" height="72" rx="4" class="sv-bot"/>
+        <text x="384" y="120" text-anchor="middle" class="sv-t">Router</text><text x="384" y="138" text-anchor="middle" class="sv-s">几秒内做决定</text><text x="384" y="154" text-anchor="middle" class="sv-m">第 3–4 章</text>
+        <rect x="496" y="92" width="96" height="72" rx="4" class="sv-box"/>
+        <text x="544" y="124" text-anchor="middle" class="sv-t">工单</text><text x="544" y="144" text-anchor="middle" class="sv-m">第 5 章</text>
+        <rect x="648" y="92" width="96" height="72" rx="4" class="sv-box"/>
+        <text x="696" y="120" text-anchor="middle" class="sv-t">Worker</text><text x="696" y="138" text-anchor="middle" class="sv-s">可以开好几个</text><text x="696" y="154" text-anchor="middle" class="sv-m">第 6、8 章</text>
+
+        <path data-motion-item data-step="1" data-motion-decorative aria-hidden="true" focusable="false" pathLength="1" class="draw-path" d="M112,128 H166"/>
+        <path data-motion-item data-step="4" data-motion-decorative aria-hidden="true" focusable="false" pathLength="1" class="draw-path" d="M696,164 V196 A8,8 0 0 1 688,204 H72 A8,8 0 0 1 64,196 V166"/>
+      </svg>
+    </div>
+    <div data-motion-controls role="group" aria-label="图 1-2 播放控制">
+      <button type="button" data-motion-action="prev">上一步</button>
+      <button type="button" data-motion-action="play" aria-pressed="false">播放</button>
+      <button type="button" data-motion-action="pause" aria-pressed="true">暂停</button>
+      <button type="button" data-motion-action="next">下一步</button>
+      <button type="button" data-motion-action="replay">重播</button>
+      <span class="keyboard-help">← → 单步 · 空格 播放或暂停 · R 重播</span>
+      <span data-motion-status-visible aria-hidden="true">第 <span data-motion-step-label>6</span> / 6 步</span>
+    </div>
+    <p class="sr-only" data-motion-status role="status" aria-live="polite" aria-atomic="true"></p>
+    <figcaption><b>图 1-2</b>整门课要搭的东西，都在这张图里。点“播放”分六步看一条消息走完全程。每个方框下面标着讲它的章节。</figcaption>
+  </figure>
+  <p>注意第 5 步的虚线。小橙在线程里问“要我做吗”，对方回“1”，这条回复不需要 Router 再判断一遍“是不是任务”，它本来就属于那张工单。少一次判断，就少一次判断错的机会。</p>
+</section>
+
+<!-- ============ 1.3 ============ -->
+<section class="col">
+  <span class="sec-no">1.3</span>
+  <h2>不拆会怎样</h2>
+  <p class="lead">换个问法：如果只用一个 Agent，听到什么就做什么，做完再听下一条，会差多少？下面是同一段群聊，五条消息在 8 分钟内陆续进来。切换两种结构，再拖一下 Worker 数量。</p>
+  <div class="lab">
+    <div class="lab-ctl">
+      <div class="seg" role="group" aria-label="结构">
+        <button type="button" id="g-single" aria-pressed="true">一个 Agent 包办</button>
+        <button type="button" id="g-split" aria-pressed="false">Router + Worker</button>
+      </div>
+      <div class="field off" id="g-wfield"><label for="g-workers">Worker 数量 <output id="g-wout">2</output></label><input type="range" id="g-workers" min="1" max="4" step="1" value="2" disabled></div>
+    </div>
+    <div class="g-rows" id="g-rows" aria-live="polite"></div>
+    <div class="g-axis" aria-hidden="true"><span></span><div class="g-ticks" id="g-ticks"></div><span></span></div>
+    <div class="g-legend"><span><i style="background:var(--ask);width:3px;height:12px"></i>第一句回应</span><span><i style="background:var(--border2);height:2px"></i>干等</span><span><i style="background:var(--brand)"></i>做任务</span><span><i style="background:var(--go)"></i>答问题</span><span><i style="background:var(--stone)"></i>读寒暄</span></div>
+    <div class="g-sum">
+      <div><b id="g-wait"></b><span>最久的一条，等了多久才有第一句回应</span></div>
+      <div><b id="g-done"></b><span>全部处理完，是第几分钟</span></div>
+    </div>
+  </div>
+  <p class="figlabel"><b>图 1-3</b>响应时间对比。任务时长是示意的假设值，不是实测数据。</p>
+  <p>一个 Agent 包办时，最后那句“测试服挂了吗”要等快半小时才有人理，而它可能是最急的一句。换成 Router + Worker，每条消息几秒内都有回应，“收到”也不再占用模型。Worker 数量决定的是吞吐：从 1 个加到 3 个，全部做完的时间从三十多分钟降到二十分钟左右。</p>
+  <p>Router 的回应快，是因为它只做判断。第 3 章会讲它怎么用几行代码挡掉大部分消息，剩下的才花一次模型调用。</p>
+</section>
+
+<!-- ============ 1.4 ============ -->
+<section class="col">
+  <span class="sec-no">1.4</span>
+  <h2>这门课你会做出什么</h2>
+  <p class="lead">十章，每章搭图 1-2 里的一块。学完以后，你有一个跑在自己飞书群里的小橙，和一份可以讲给老板听的推广方案。</p>
+  <ol class="map">
+    <li><span class="no">01</span><span class="t"><a href="../ch1/">机器人和同事差在哪</a><span>整体结构：Router、Worker、工单</span></span><span class="free">免费</span></li>
+    <li><span class="no">02</span><span class="t"><a href="../ch2/">让它听见整个群</a><span>飞书事件、权限、去重、统一格式</span></span><span class="free">免费</span></li>
+    <li><span class="no">03</span><span class="t"><a href="../ch3/">先过滤，再判断</a><span>Router 的四道关和批处理</span></span><span class="free">免费</span></li>
+    <li><span class="no">04</span><span class="t">别让一句话骗走权限<span>提示注入攻防、凭证隔离、命令沙箱</span></span></li>
+    <li><span class="no">05</span><span class="t">把活儿派出去<span>委托书、工单状态机、Worker 调度</span></span></li>
+    <li><span class="no">06</span><span class="t">给 Worker 一双手<span>工具调用、读写仓库、提 PR</span></span></li>
+    <li><span class="no">07</span><span class="t">接着聊<span>线程追问直达工单、中途改需求</span></span></li>
+    <li><span class="no">08</span><span class="t">一条活儿的流水线<span>plan、execute、review、test、publish 多 Agent 闭环</span></span></li>
+    <li><span class="no">09</span><span class="t">别让它卡死<span>Watchdog、超时重试、成本护栏</span></span></li>
+    <li><span class="no">10</span><span class="t">带进团队<span>观察期、准确率度量、写给 AI 的团队手册</span></span></li>
+  </ol>
+  <p class="small muted">需要准备：一个飞书企业自建应用（要管理员审批一项权限，第 2 章讲），Node.js 20 以上，一个支持结构化输出的大模型 API。</p>
+</section>
+
+<!-- ============ code ============ -->
+<section class="col">
+  <span class="sec-no">1.5</span>
+  <h2>整门课的骨架</h2>
+  <p class="lead">先把几个核心类型定下来。后面每一章都在填其中一块，章节号写在注释里。</p>
+  <p class="figlabel"><b>代码 1-1</b>types.ts 与主循环</p>
+  <div class="code-wrap">
+    <div class="code-bar"><span>types.ts · TypeScript</span><button class="copy" type="button" id="copy">复制</button></div>
+    <pre class="code" id="code-pre" tabindex="0" aria-label="types.ts 代码"></pre>
+  </div>
+</section>
+
+<section class="col">
+  <span class="sec-no">练习</span>
+  <h2>先猜，再验证</h2>
+  <p>每题想好答案再点。</p>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section class="col">
+  <a class="next" href="../ch2/">
+    <span class="ch">下一章　第二章</span>
+    <h3>让它听见整个群</h3>
+    <p class="small muted">为什么普通机器人只收得到 @ 它的消息；飞书事件长什么样；为什么同一条消息会推两次。附一个可以拆开看的事件拆解台。</p>
+  </a>
+  <p class="notes">注：Router / Worker 分工、追问直达工单和 Watchdog 的思路，参考了 DeepSeek 开源的 <a href="https://github.com/deepseek-ai/dsh-superagent-prototype" target="_blank" rel="noopener">dsh-superagent-prototype</a>（MIT 协议）。本课程为独立教学内容，不是 DeepSeek 官方内容。群聊中的人物与对话均为虚构示例。</p>
+</section>
+
+<div class="folio">第 1 章 / 共 10 章</div>
+</div>
+
+<script type="text/plain" id="code-src">// types.ts：整门课围绕这几个类型展开
+export type Trigger = {         // 第 2 章：一条飞书消息，整理成统一格式
+  eventId: string;
+  chatId: string;
+  threadId?: string;            // 在线程里回复时才有
+  senderId: string;             // 飞书给的 open_id，消息文字改不了它
+  text: string;
+  mentionsBot: boolean;
+  at: number;
+};
+
+export type Decision =          // 第 3 章：Router 的结论
+  | { kind: 'drop' | 'stop' | 'ignore'; reason: string }
+  | { kind: 'observe'; wouldDo: string }
+  | { kind: 'ask'; question: string }
+  | { kind: 'accept'; mandate: Mandate };
+
+export type Mandate = {         // 第 5 章：交给 Worker 的委托书
+  goal: string;
+  repo: string;
+  requestedBy: string;
+  doneWhen: string;             // 什么算做完，写清楚
+};
+
+export type Ticket = {          // 第 5 章：一件活从开工到交付的记录
+  id: string;
+  mandate: Mandate;
+  threadId: string;             // 汇报和追问都在这个线程里
+  status: 'queued' | 'running' | 'blocked' | 'done' | 'failed';
+  heartbeatAt: number;          // 第 9 章：Watchdog 靠它判断卡没卡死
+};
+
+// 主循环：Router 只做决定，活交给 Worker
+export async function onTrigger(t: Trigger) {
+  const live = t.threadId ? tickets.findByThread(t.threadId) : null;
+  if (live) return live.inbox.push(t);           // 第 7 章：追问直达工单
+  const d = await router.decide(t);              // 第 3 章：几秒
+  if (d.kind === 'accept') workers.dispatch(tickets.open(d.mandate, t)); // 慢活
+  if (d.kind === 'ask') await feishu.replyInThread(t, d.question);
+}</script>
+
+<script>
+var Course = (function(){
+  var esc = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var KW = /^(type|const|let|var|export|import|from|function|return|if|else|for|of|async|await|as|new|null|true|false|undefined)$/;
+  var TOKEN = /(\/\/[^\n]*)|('(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\/\^(?:[^\/\\\n]|\\.)+\/[gimsuy]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)|([\s\S])/g;
+  function span(cls, s){ return '<span class="'+cls+'">'+esc(s)+'</span>'; }
+  function highlightTS(src){
+    var out = '', m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(src))) {
+      if (m[1]) out += span('tk-c', m[1]);
+      else if (m[2]) out += span('tk-s', m[2]);
+      else if (m[3] || m[4]) out += span('tk-n', m[3] || m[4]);
+      else if (m[5]) {
+        var w = m[5], rest = src.slice(TOKEN.lastIndex), next = rest.replace(/^\s+/, '').charAt(0);
+        if (KW.test(w)) out += span('tk-k', w);
+        else if (/^(string|number|boolean|void|unknown|any)$/.test(w)) out += span('tk-t', w);
+        else if (next === '(' || /^<\w+>\(/.test(rest)) out += span('tk-f', w);
+        else if (/^[A-Z]/.test(w)) out += span('tk-t', w);
+        else out += esc(w);
+      }
+      else out += esc(m[6]);
+    }
+    return out;
+  }
+  function highlightJSON(src){
+    return src.replace(/("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?)|(true|false|null)|([\s\S])/g, function(m, str, colon, num, lit){
+      if (str) return colon ? span('tk-p', str) + colon : span('tk-s', str);
+      if (num) return span('tk-n', num);
+      if (lit) return span('tk-k', lit);
+      return esc(m);
+    });
+  }
+  function mountCode(srcId, preId, copyId){
+    var src = document.getElementById(srcId).textContent, pre = document.getElementById(preId);
+    pre.innerHTML = highlightTS(src);
+    document.getElementById(copyId).addEventListener('click', function(){
+      var btn = this;
+      var done = function(){ btn.textContent = '已复制'; setTimeout(function(){ btn.textContent = '复制'; }, 1500); };
+      var fail = function(){ var r = document.createRange(); r.selectNodeContents(pre); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = '已选中，按 Ctrl+C 复制'; };
+      try { navigator.clipboard.writeText(src).then(done, fail); } catch(e){ fail(); }
+    });
+  }
+  function mountQuiz(el, QUIZ){
+    QUIZ.forEach(function(item, qi){
+      var box = document.createElement('div'); box.className = 'q';
+      box.innerHTML = '<h3>'+(qi+1)+'.　'+esc(item.q)+'</h3><div class="opts" role="group" aria-label="选项"></div><p class="exp" hidden></p>';
+      var opts = box.querySelector('.opts'), exp = box.querySelector('.exp');
+      item.opts.forEach(function(o, oi){
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = o;
+        b.addEventListener('click', function(){
+          opts.querySelectorAll('button').forEach(function(x, xi){ x.classList.remove('right','wrong'); if (xi === item.a) x.classList.add('right'); });
+          if (oi !== item.a) b.classList.add('wrong');
+          exp.textContent = (oi === item.a ? '答对了。' : '再想想。') + item.exp; exp.hidden = false;
+        });
+        opts.appendChild(b);
+      });
+      el.appendChild(box);
+    });
+  }
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
+  return {esc:esc, span:span, highlightTS:highlightTS, highlightJSON:highlightJSON, mountCode:mountCode, mountQuiz:mountQuiz, reduce:reduce};
+})();
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = Course.esc;
+
+  /* ---------- hero: two lanes ---------- */
+  var P = {
+    xiaolin:{name:'小林',role:'产品'}, ajie:{name:'阿杰',role:'前端'}, wangjie:{name:'王姐',role:'运营'}
+  };
+  var KIND = {drop:'丢弃',ignore:'忽略',observe:'只记录',ask:'先问人',accept:'开工'};
+  // bot: what the ordinary group bot does; agent: what 小橙 does. job: this message is real work.
+  var SCRIPT = [
+    {who:'xiaolin', text:'下午三点评审，大家记得到 302',
+      bot:{miss:false, why:'没被 @，飞书不推给它'}, agent:{k:'ignore', why:'通知，不需要人做事'}},
+    {who:'wangjie', text:'好几个用户说安卓上订单页一直转圈', job:true,
+      bot:{miss:true, why:'没被 @，漏掉了一个 bug'}, agent:{k:'accept', why:'Bug，群规则允许直接做', reply:'我先查订单页的加载接口，20 分钟内在这个线程回报。'}},
+    {who:'ajie', text:'收到👌',
+      bot:{miss:false, why:'没被 @'}, agent:{k:'drop', why:'寒暄，代码直接挡掉，没调模型'}},
+    {who:'xiaolin', text:'设置页能不能加个深色模式开关', job:true,
+      bot:{miss:true, why:'没被 @，漏掉了一个需求'}, agent:{k:'ask', why:'新需求，群规则要求先问', reply:'这像是个新需求。要我先出一份方案草稿吗？回复 1 开工。', ask:true}},
+    {who:'ajie', text:'中午吃啥',
+      bot:{miss:false, why:'没被 @'}, agent:{k:'ignore', why:'闲聊'}},
+    {who:'wangjie', text:'@{bot} 把上周的发布说明发我一下', job:true,
+      bot:{hit:true, why:'被 @，当场回复', reply:'上周发布说明：v2.8.1，修复登录、推送、订单列表 3 个问题。'}, agent:{k:'accept', why:'被点名的问答', reply:'上周发布说明：v2.8.1，修复登录、推送、订单列表 3 个问题。'}},
+    {who:'xiaolin', text:'1', thread:'深色模式',
+      bot:{miss:false, why:'没被 @，也不知道“1”指什么'}, agent:{k:'accept', why:'线程追问，直达深色模式工单，没过 Router', reply:'好，开始写深色模式方案，写完贴在这个线程。', confirm:true}},
+    {agentOnly:true, reply:'订单页转圈的原因：分页接口超时。已提 PR #128 修复，@阿杰 帮忙 review。', report:true}
+  ];
+  var JOBS = SCRIPT.filter(function(s){ return s.job; }).length;
+  var pos = 0, timer = 0, playing = false;
+  var T = {bot:{caught:0, missed:0, bother:0}, agent:{caught:0, missed:0, bother:0}};
+
+  function msgHTML(avatar, cls, who, bodyHTML, extra){
+    return '<div class="msg fresh '+cls+'"><div class="av">'+avatar+'</div><div><div class="who">'+who+'</div><div class="bubble">'+bodyHTML+'</div>'+(extra||'')+'</div></div>';
+  }
+  function push(feed, html){ feed.insertAdjacentHTML('beforeend', html); feed.scrollTop = feed.scrollHeight; }
+  function tally(el, t, lane){
+    el.innerHTML =
+      '<div class="good"><b>'+t.caught+'</b><span>接住的活</span></div>'+
+      '<div class="'+(t.missed?'bad':'')+'"><b>'+t.missed+'</b><span>漏掉的活</span></div>'+
+      '<div class="'+(t.bother?'warn':'')+'"><b>'+t.bother+'</b><span>主动打扰人</span></div>';
+  }
+  function human(s, botName){
+    var p = P[s.who];
+    var text = esc(s.text.replace('{bot}', botName));
+    var who = esc(p.name)+' · '+esc(p.role)+(s.thread ? ' <span class="re">回复了小橙的提问</span>' : '');
+    return {avatar:esc(p.name.charAt(0)), who:who, text:text};
+  }
+  function stepOnce(){
+    if (pos >= SCRIPT.length) return false;
+    var s = SCRIPT[pos], fb = $('feed-bot'), fa = $('feed-agent');
+    if (s.agentOnly) {
+      push(fa, msgHTML('橙', 'me-bot', '小橙 · 数字员工 <span class="re">在订单页线程汇报</span>', esc(s.reply)));
+      push(fb, '<p class="sys">群助手这边，订单页的问题还没人管</p>');
+    } else {
+      var hb = human(s, '群助手'), ha = human(s, '小橙');
+      // ordinary bot lane
+      var bv = s.bot.hit ? '<span class="pill k-accept">回复</span><span class="why">'+esc(s.bot.why)+'</span>'
+                         : '<span class="why">'+esc(s.bot.why)+'</span>';
+      if (s.thread) { hb.who = esc(P[s.who].name)+' · '+esc(P[s.who].role); }
+      push(fb, msgHTML(hb.avatar, '', hb.who, hb.text, '<div class="verdict'+(s.bot.miss?' miss':'')+'">'+bv+'</div>'));
+      if (s.bot.reply) push(fb, msgHTML('助', 'me-bot', '群助手 · 机器人', esc(s.bot.reply)));
+      if (s.job) { if (s.bot.hit) T.bot.caught++; else T.bot.missed++; }
+      // agent lane
+      var av = '<span class="pill k-'+s.agent.k+'">'+KIND[s.agent.k]+'</span><span class="why">'+esc(s.agent.why)+'</span>';
+      push(fa, msgHTML(ha.avatar, '', ha.who, ha.text, '<div class="verdict">'+av+'</div>'));
+      if (s.agent.reply) push(fa, msgHTML('橙', 'me-bot', '小橙 · 数字员工'+(s.who==='wangjie'||s.who==='xiaolin'?' <span class="re">在线程里回复</span>':''), esc(s.agent.reply)));
+      if (s.job) T.agent.caught++;
+      if (s.agent.ask) T.agent.bother++;
+    }
+    pos++;
+    tally($('tally-bot'), T.bot); tally($('tally-agent'), T.agent);
+    $('h-pos').textContent = '第 '+pos+' / '+SCRIPT.length+' 条';
+    $('h-next').disabled = pos >= SCRIPT.length;
+    if (pos >= SCRIPT.length) { stop(); $('h-play').textContent = '再放一遍'; }
+    return true;
+  }
+  function stop(){ playing = false; clearTimeout(timer); $('h-play').textContent = '播放'; }
+  function loop(){ if (!playing) return; if (stepOnce() && pos < SCRIPT.length) timer = setTimeout(loop, 2400); }
+  function reset(){
+    stop(); pos = 0;
+    T = {bot:{caught:0, missed:0, bother:0}, agent:{caught:0, missed:0, bother:0}};
+    $('feed-bot').innerHTML = '<p class="sys">群助手已入群 · 只响应 @群助手</p>';
+    $('feed-agent').innerHTML = '<p class="sys">小橙已入群 · 旁听全部消息</p>';
+    tally($('tally-bot'), T.bot); tally($('tally-agent'), T.agent);
+    $('h-pos').textContent = '共 '+SCRIPT.length+' 条，其中 '+JOBS+' 件是要人做的事';
+    $('h-next').disabled = false;
+  }
+  $('h-play').addEventListener('click', function(){
+    if (playing) { stop(); return; }
+    if (pos >= SCRIPT.length) reset();
+    playing = true; this.textContent = '暂停';
+    loop();
+  });
+  $('h-next').addEventListener('click', function(){ stop(); stepOnce(); });
+  $('h-reset').addEventListener('click', reset);
+  reset();
+  if (Course.reduce) { while (stepOnce()) {} }
+
+  /* ---------- 1.3 response-time lab ---------- */
+  var MSGS = [
+    {t:0, label:'订单页转圈', type:'task', dur:20},
+    {t:2, label:'发布说明在哪', type:'qa', dur:2},
+    {t:3, label:'收到👌', type:'noise', dur:0.5},
+    {t:6, label:'深色模式方案', type:'task', dur:14},
+    {t:8, label:'测试服挂了吗', type:'qa', dur:2}
+  ];
+  var MAX = 45, ROUTER = 0.1;
+  var G = {mode:'single', workers:2};
+  function simulate(){
+    var out = [];
+    if (G.mode === 'single') {
+      var free = 0;
+      MSGS.forEach(function(m){
+        var start = Math.max(m.t, free), end = start + m.dur; free = end;
+        out.push({m:m, start:start, end:end, resp:start, gone:false});
+      });
+    } else {
+      var w = []; for (var i = 0; i < G.workers; i++) w.push(0);
+      MSGS.forEach(function(m){
+        var resp = m.t + ROUTER;
+        if (m.type === 'noise') { out.push({m:m, start:resp, end:resp, resp:resp, gone:true}); return; }
+        var k = 0; for (var j = 1; j < w.length; j++) if (w[j] < w[k]) k = j;
+        var start = Math.max(resp, w[k]), end = start + m.dur; w[k] = end;
+        out.push({m:m, start:start, end:end, resp:resp, gone:false});
+      });
+    }
+    return out;
+  }
+  function pct(x){ return (x / MAX * 100).toFixed(2) + '%'; }
+  function fmt(min){ return min < 1 ? Math.round(min*60)+' 秒' : (Math.round(min*10)/10)+' 分钟'; }
+  var rows = $('g-rows');
+  MSGS.forEach(function(m, i){
+    var r = document.createElement('div'); r.className = 'g-row';
+    r.innerHTML = '<div class="g-label"><span class="t">第 '+m.t+' 分钟</span><span>'+esc(m.label)+'</span></div>'+
+      '<div class="g-track"><div class="g-wait"></div><div class="g-work '+m.type+'"></div><div class="g-resp"></div></div>'+
+      '<div class="g-out"></div>';
+    rows.appendChild(r);
+  });
+  var ticks = '';
+  for (var x = 0; x <= 40; x += 10) ticks += '<span style="left:'+pct(x)+'">'+x+(x===40?' 分':'')+'</span>';
+  $('g-ticks').innerHTML = ticks;
+  function renderLab(){
+    var res = simulate(), worstWait = 0, done = 0;
+    res.forEach(function(r, i){
+      var row = rows.children[i];
+      var wait = row.querySelector('.g-wait'), work = row.querySelector('.g-work'), resp = row.querySelector('.g-resp');
+      wait.style.left = pct(r.m.t); wait.style.width = pct(Math.max(0, r.start - r.m.t));
+      work.style.left = pct(r.start); work.style.width = pct(r.end - r.start);
+      work.classList.toggle('gone', r.gone);
+      resp.style.left = pct(r.resp);
+      var w = r.resp - r.m.t; worstWait = Math.max(worstWait, w); done = Math.max(done, r.end);
+      row.querySelector('.g-out').innerHTML = r.gone ? '代码挡掉<br><b>不占模型</b>' : '等 <b>'+fmt(w)+'</b><br>才有回应';
+    });
+    $('g-wait').textContent = fmt(worstWait);
+    $('g-done').textContent = '第 ' + (Math.round(done*10)/10) + ' 分钟';
+  }
+  function setMode(m){
+    G.mode = m;
+    $('g-single').setAttribute('aria-pressed', String(m === 'single'));
+    $('g-split').setAttribute('aria-pressed', String(m === 'split'));
+    $('g-workers').disabled = m === 'single';
+    $('g-wfield').classList.toggle('off', m === 'single');
+    renderLab();
+  }
+  $('g-single').addEventListener('click', function(){ setMode('single'); });
+  $('g-split').addEventListener('click', function(){ setMode('split'); });
+  $('g-workers').addEventListener('input', function(){ G.workers = +this.value; $('g-wout').textContent = this.value; renderLab(); });
+  renderLab();
+
+  /* ---------- code + quiz ---------- */
+  Course.mountCode('code-src', 'code-pre', 'copy');
+  Course.mountQuiz($('quiz'), [
+    {q:'王姐在群里说“安卓上订单页一直转圈”，没有 @ 任何人。普通群机器人会怎么做？', opts:['在线程里回复她','什么都不做','先问她要不要处理'], a:1,
+     exp:'什么都不做。它没被 @，飞书根本不会把这条消息推给它。第 2 章会讲这背后的权限设置。'},
+    {q:'为什么 Router 不自己顺手把 bug 修了？', opts:['模型能力不够','修 bug 要几十分钟，这期间 Router 听不见群里的新消息','这样更省钱'], a:1,
+     exp:'Router 被一件长活占住，后面的消息都得干等。图 1-3 里切到“一个 Agent 包办”就能看到。'},
+    {q:'小橙在线程里问“要我先出方案吗？回复 1 开工”，小林回了“1”。这条回复会再经过 Router 判断吗？', opts:['会，每条消息都要过 Router','不会，直接交给那张工单'], a:1,
+     exp:'不会。线程属于一张正在进行的工单，回复直接进这张工单的收件箱。看图 1-2 第 5 步的虚线。'}
+  ]);
+})();
+</script>
+  <script data-diagram-controls>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const staticOverride = params.get('motion') === 'static' || document.documentElement.dataset.motion === 'static';
+      const requestedStep = params.get('step');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      document.fonts.ready.then(() => { document.documentElement.dataset.fontsReady = 'true'; });
+
+      document.querySelectorAll('[data-motion-root]').forEach((root) => {
+        const count = Number(root.dataset.stepCount);
+        const hold = parseFloat(getComputedStyle(root).getPropertyValue('--motion-hold')) || 720;
+        const parsedStep = requestedStep !== null && /^\d+$/.test(requestedStep) ? Number(requestedStep) : null;
+        const exactStep = params.get('motion') === 'step' && Number.isSafeInteger(parsedStep) && parsedStep >= 0 && parsedStep <= count ? parsedStep : null;
+        const items = [...root.querySelectorAll('[data-motion-item]')];
+        const labels = Array.from({ length: count + 1 }, (_, index) => index === 0
+          ? 'Ready'
+          : items.filter((item) => !item.hasAttribute('data-motion-decorative') && Number(item.dataset.step) === index)
+              .map((item) => item.getAttribute('aria-label')).join('; '));
+        const controls = root.querySelector('[data-motion-controls]');
+        const status = root.querySelector('[data-motion-status]');
+        const visibleStep = root.querySelector('[data-motion-step-label]');
+        let step = count;
+        let timer = 0;
+        let playing = false;
+        let stepBeforeReduce = 0;
+        let resumeAfterReduce = root.dataset.motionMode === 'reveal';
+
+        const buttons = (action) => controls.querySelector(`[data-motion-action="${action}"]`);
+        const clearClock = () => { window.clearTimeout(timer); timer = 0; };
+        const announce = () => { status.textContent = `Step ${step} of ${count}: ${labels[step] || 'Complete'}`; };
+        const setControlsAvailable = (available) => {
+          controls.hidden = !available;
+          controls.setAttribute('aria-hidden', String(!available));
+          controls.dataset.playbackDisabled = String(!available);
+          controls.querySelectorAll('button').forEach((control) => { control.disabled = !available; });
+        };
+
+        function render(next, userInitiated = false) {
+          step = Math.max(0, Math.min(count, next));
+          root.dataset.stepCurrent = String(step);
+          root.dataset.frame = step === count ? 'end' : step === 0 ? 'start' : 'step';
+          items.forEach((item) => {
+            const itemStep = Number(item.dataset.step);
+            item.classList.toggle('is-visible', itemStep <= step);
+            item.classList.toggle('is-current', itemStep === step);
+          });
+          if (visibleStep) visibleStep.textContent = String(step);
+          const unavailable = controls.dataset.playbackDisabled === 'true';
+          buttons('prev').disabled = unavailable || step === 0;
+          buttons('next').disabled = unavailable || step === count;
+          if (userInitiated) announce();
+        }
+
+        function pause(userInitiated = false) {
+          clearClock();
+          playing = false;
+          root.classList.remove('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'false');
+          buttons('pause').setAttribute('aria-pressed', 'true');
+          if (userInitiated) status.textContent = `Paused at step ${step} of ${count}`;
+        }
+
+        function finish() {
+          pause(false);
+          root.dataset.frame = 'end';
+          status.textContent = `Complete · step ${count} of ${count}`;
+        }
+
+        function tick() {
+          if (!playing) return;
+          if (step >= count) { finish(); return; }
+          render(step + 1, false);
+          if (step >= count) { finish(); return; }
+          timer = window.setTimeout(tick, hold);
+        }
+
+        function play(fromStart = false, userInitiated = false) {
+          clearClock();
+          if (fromStart || step >= count) render(0, userInitiated);
+          playing = true;
+          root.classList.add('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'true');
+          buttons('pause').setAttribute('aria-pressed', 'false');
+          timer = window.setTimeout(tick, hold);
+        }
+
+        controls.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-motion-action]');
+          if (!button) return;
+          const action = button.dataset.motionAction;
+          if (action === 'play') play(false, true);
+          if (action === 'pause') pause(true);
+          if (action === 'replay') play(true, true);
+          if (action === 'prev') { pause(false); render(step - 1, true); }
+          if (action === 'next') { pause(false); render(step + 1, true); }
+        });
+
+        root.addEventListener('keydown', (event) => {
+          if (event.target.matches('input, textarea, select, a[href]')) return;
+          const keys = { ArrowLeft: step - 1, ArrowRight: step + 1, Home: 0, End: count };
+          if (event.code === 'Space' && !event.target.closest('button')) {
+            event.preventDefault();
+            playing ? pause(true) : play(false, true);
+            return;
+          }
+          if (!event.ctrlKey && !event.metaKey && !event.altKey && event.key.toLowerCase() === 'r') {
+            event.preventDefault();
+            play(true, true);
+            return;
+          }
+          if (!(event.key in keys)) return;
+          event.preventDefault();
+          pause(false);
+          render(keys[event.key], true);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden' && playing) pause(false);
+        });
+        reduce.addEventListener('change', (event) => {
+          if (event.matches && root.dataset.motionState !== 'reduced') {
+            stepBeforeReduce = step;
+            resumeAfterReduce = playing;
+          }
+          pause(false);
+          if (event.matches) {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'reduced';
+            status.textContent = 'Reduced motion · complete static frame · playback controls unavailable';
+          } else if (staticOverride || root.dataset.motionMode === 'none') {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'static';
+            status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+          } else {
+            delete root.dataset.motionState;
+            if (exactStep !== null) {
+              setControlsAvailable(false);
+              render(exactStep, false);
+              root.dataset.frame = 'step';
+              root.dataset.motionState = 'test';
+              status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+            } else {
+              setControlsAvailable(true);
+              render(stepBeforeReduce, false);
+              status.textContent = `Ready · step ${step} of ${count}`;
+              if (resumeAfterReduce && root.dataset.motionMode === 'reveal') {
+                play(false, false);
+              }
+            }
+            resumeAfterReduce = false;
+          }
+        });
+
+        if (staticOverride) {
+          document.documentElement.dataset.motion = 'static';
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = 'static';
+          status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+        } else if (reduce.matches || root.dataset.motionMode === 'none') {
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = reduce.matches ? 'reduced' : 'static';
+          status.textContent = reduce.matches
+            ? 'Reduced motion · complete static frame · playback controls unavailable'
+            : 'Static frame · complete diagram · playback controls unavailable';
+        } else if (exactStep !== null) {
+          document.documentElement.dataset.motion = 'step';
+          pause(false);
+          setControlsAvailable(false);
+          render(exactStep, false);
+          root.dataset.frame = 'step';
+          root.dataset.motionState = 'test';
+          status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+        } else if (root.dataset.motionMode === 'reveal') {
+          setControlsAvailable(true);
+          render(0, false);
+          play(false, false);
+        } else {
+          pause(false);
+          setControlsAvailable(true);
+          render(0, false);
+          status.textContent = `Ready · step 0 of ${count}`;
+        }
+        root.classList.add('motion-ready');
+      });
+    })();
+  </script>
+
+
+</body>
+</html>

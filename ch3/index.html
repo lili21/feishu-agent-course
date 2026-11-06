@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="《从 0 到 1 做飞书数字员工》第 3 章：先过滤，再判断。交互式群消息模拟器。">
+<meta name="description" content="《不用 @ 的 AI 同事》第 3 章：先过滤，再判断。交互式群消息模拟器。">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>先过滤，再判断</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -182,7 +182,7 @@ details.peek summary{cursor:pointer;font-size:14px;color:var(--olive)}
 .peek-grid .lbl{font-size:12.5px;color:var(--stone);margin-bottom:4px}
 
 /* code + syntax highlighting */
-pre.code{margin:0;background:var(--code);color:var(--ink);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12.8px;line-height:1.65;letter-spacing:0;overflow-x:auto;white-space:pre;tab-size:2}
+pre.code{margin:0;background:var(--code);color:var(--ink);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12.8px;line-height:1.65;letter-spacing:0;overflow-x:auto;white-space:pre;tab-size:2;font-variant-ligatures:none}
 .tk-k{color:var(--hl-kw);font-weight:500}
 .tk-t{color:var(--hl-type)}
 .tk-s{color:var(--hl-str)}
@@ -266,6 +266,7 @@ html[data-motion="step"] [data-motion-item]{animation:none !important;transition
 .tbl table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
 .tbl th,.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:400}
 .tbl thead th{font-size:13px;color:var(--olive);letter-spacing:.06em;border-bottom:1px solid var(--border2)}
+.tbl.rh tbody th{white-space:nowrap;color:var(--ink2)}
 .tbl tr:last-child td,.tbl tr:last-child th{border-bottom:0}
 
 .quiz{display:flex;flex-direction:column;gap:22px}
@@ -282,13 +283,34 @@ html[data-motion="step"] [data-motion-item]{animation:none !important;transition
 .next .ch{font-size:12.5px;letter-spacing:.2em;color:var(--brand)}
 .notes{font-size:13.5px;color:var(--stone);border-top:1px solid var(--border);padding-top:14px;line-height:1.6}
 @media (prefers-reduced-motion:reduce){.stage,.decision,.meter .m-model,#tok,.fl-node rect{transition:none}}
+
+/* navigation (shared across chapters) */
+.runhead a{color:inherit;text-decoration:none}
+.runhead a:hover{color:var(--brand)}
+a.next{text-decoration:none;color:inherit;border:1px solid transparent}
+a.next:hover{border-color:var(--brand)}
+a.next:hover h3{color:var(--brand)}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14.5px}
+.pager a{color:var(--brand);text-decoration:none}
+.pager a:hover{text-decoration:underline}
+/* generic controls */
+.btn{min-height:44px;padding:8px 16px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);font-size:14.5px;cursor:pointer}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--ivory)}
+.btn.primary:hover{color:var(--ivory)}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--border2);border-radius:4px;overflow:hidden;background:var(--ivory)}
+.seg button{min-height:40px;padding:6px 14px;border:0;background:transparent;color:var(--ink2);font-size:14px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--border2)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--ivory)}
+.free{font-size:12px;letter-spacing:.08em;padding:1px 8px;border-radius:999px;background:var(--go-tint);color:var(--go);white-space:nowrap}
+
 </style>
 </head>
 <body>
-
 <div class="page">
 
-<div class="runhead"><span>从 0 到 1 做飞书数字员工</span><span>第三章　先过滤，再判断</span></div>
+<div class="runhead"><a href="../">不用 @ 的 AI 同事</a><span>第三章　先过滤，再判断</span></div>
 
 <header class="opener">
   <span class="ch-num" aria-hidden="true">3</span>
@@ -589,8 +611,9 @@ html[data-motion="step"] [data-motion-item]{animation:none !important;transition
   <div class="next">
     <span class="ch">下一章　第四章</span>
     <h3>授权：别让一句话骗走权限</h3>
-    <p class="small muted">提示注入攻防、凭证不进模型上下文、命令沙箱。附一个可以自己出招的攻防小游戏。即将上线。</p>
+    <p class="small muted">提示注入攻防、凭证不进模型上下文、命令沙箱。附一个可以自己出招的攻防小游戏。完整版课程内容。</p>
   </div>
+  <div class="pager"><a href="../ch2/">← 第二章　让它听见整个群</a><a href="../">课程目录</a></div>
   <p class="notes">注：本章的 Gate / Assessment 两层判断、观察模式和批处理思路，参考了 DeepSeek 开源的 <a href="https://github.com/deepseek-ai/dsh-superagent-prototype" target="_blank" rel="noopener">dsh-superagent-prototype</a>（MIT 协议）及其设计文章。示例为教学简化版，不是 DeepSeek 官方内容。群聊中的人物与对话均为虚构示例。</p>
 </section>
 
@@ -1301,5 +1324,7 @@ export function decide(a: Assessment, g: GateOk, rules: Record<Category, Level>)
       });
     })();
   </script>
+
+
 </body>
 </html>

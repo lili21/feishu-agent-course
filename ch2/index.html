@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="《不用 @ 的 AI 同事》第 2 章：让它听见整个群。飞书消息事件拆解台。">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>让它听见整个群</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: book typography on parchment (Kami rules: one serif, 400/500 only, no bold, no italic, one ink-blue accent, warm greys). Reading column 680px; simulator and figures run wider. No page-as-sheet, no shadows. Diagrams follow diagram-design: orthogonal connectors, masked labels, 4px grid, step-mode motion. Single light theme by choice. */
+:root{
+  color-scheme:light;
+  --parchment:#F5F4ED; --ivory:#FAF9F5; --code:#F0EEE6; --sand:#E8E6DC;
+  --ink:#141413; --ink2:#3D3D3A; --olive:#504E49; --stone:#6B6A64;
+  --border:#E8E6DC; --border2:#D9D6CA;
+  --brand:#1B365D; --brand-tint:#EEF2F7; --tag:#E4ECF5;
+  --go:#2E6A4A; --go-tint:#E4ECE1;
+  --ask:#8A5A12; --ask-tint:#F2E8D3;
+  --stop:#9A2E2A; --stop-tint:#F2E0DB;
+  --hl-kw:#1B365D; --hl-type:#2E6A4A; --hl-str:#9A5B13; --hl-com:#8E8A7E; --hl-num:#7A3E6B; --hl-fn:#A0442A;
+  --serif:"Noto Serif SC","Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
+  --mono:"JetBrains Mono","SF Mono",Consolas,"Noto Serif SC","Source Han Serif SC",monospace;
+  --motion-fast:160ms; --motion-step:480ms; --motion-hold:1200ms; --motion-total:6000ms; --motion-ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{background:var(--parchment)}
+body{color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55;letter-spacing:.02em;font-weight:400}
+button,input,select{font-family:var(--serif);letter-spacing:.02em}
+h1,h2,h3{font-weight:500;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--brand)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+.page{max-width:1040px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:60px}
+.runhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--stone);letter-spacing:.12em;border-bottom:1px solid var(--border);padding-bottom:10px}
+.folio{display:flex;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--stone);letter-spacing:.1em}
+.col{max-width:680px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+@media (min-width:960px){.col > figure.wide{width:calc(100% + 120px);margin-left:-60px}}
+
+/* chapter opener */
+.opener{max-width:780px;width:100%;margin:16px auto 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 28px;align-items:end}
+.ch-num{font-size:132px;line-height:.82;color:var(--border2);font-weight:400;letter-spacing:0}
+.ch-label{font-size:13px;letter-spacing:.3em;color:var(--brand);display:block;margin-bottom:8px}
+h1{font-size:clamp(34px,6vw,50px);line-height:1.12;letter-spacing:.02em}
+.opener .lede{grid-column:1 / -1;font-size:18.5px;line-height:1.6;color:var(--ink2);max-width:40em;margin-top:18px}
+.keypoints{grid-column:1 / -1;display:flex;flex-direction:column;gap:2px;margin-top:6px;padding:14px 18px;background:var(--ivory);border-radius:4px;font-size:15px;color:var(--olive)}
+.keypoints span:first-child{font-size:12.5px;letter-spacing:.2em;color:var(--stone);margin-bottom:4px}
+@media (max-width:560px){.ch-num{font-size:84px}.opener{column-gap:16px}}
+
+.sec-no{font-family:var(--mono);font-size:14px;color:var(--brand);letter-spacing:.06em}
+h2{font-size:clamp(23px,3.2vw,27px);line-height:1.3}
+h3{font-size:17px;line-height:1.45}
+.lead{font-size:17.5px;color:var(--ink2)}
+.small{font-size:14.5px}
+.muted{color:var(--stone)}
+.figlabel{font-size:13.5px;color:var(--olive)}
+.figlabel b{font-weight:500;color:var(--ink);margin-right:8px}
+
+/* simulator */
+.plate{display:flex;flex-direction:column;gap:10px}
+.hint{font-size:15px;color:var(--olive);max-width:46em}
+.hint span{color:var(--brand)}
+.sim{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);border:1px solid var(--border2);border-radius:6px;background:var(--ivory);overflow:hidden}
+@media (max-width:900px){.sim{grid-template-columns:minmax(0,1fr)}}
+.chat{display:flex;flex-direction:column;border-right:1px solid var(--border2);min-width:0}
+@media (max-width:900px){.chat{border-right:0;border-bottom:1px solid var(--border2)}}
+.chat-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.chat-head b{font-size:15px;font-weight:500}
+.chat-head span{font-size:12.5px;color:var(--stone)}
+.feed{height:380px;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;background:var(--code)}
+.sys{font-size:12.5px;color:var(--stone);text-align:center}
+.msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}
+.av{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;font-size:14px;background:var(--sand);color:var(--ink2)}
+.msg.me-bot .av{background:var(--brand);color:var(--ivory)}
+.who{font-size:12.5px;color:var(--stone);line-height:1.4}
+.bubble{display:inline-block;background:var(--ivory);border:1px solid var(--border2);border-radius:2px 8px 8px 8px;padding:5px 10px;font-size:15px;line-height:1.55;max-width:100%;overflow-wrap:anywhere}
+.msg.me-bot .bubble{background:var(--brand-tint);border-color:#C9D5E4}
+.verdict{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--stone)}
+.reply-btn{margin-top:6px;display:inline-block;font-size:13px;padding:3px 12px;border-radius:999px;border:1px solid var(--brand);background:var(--ivory);color:var(--brand);cursor:pointer}
+.reply-btn:disabled{opacity:.45;cursor:default}
+.presets{padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font-size:13px;padding:3px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer;text-align:left;line-height:1.55}
+.presets button:hover{background:var(--tag);color:var(--brand)}
+.presets .muted{color:var(--stone)}
+.composer{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:10px 16px 14px}
+.composer select,.composer input{font-size:15px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);padding:6px 8px;min-width:0}
+.send{border:0;border-radius:4px;background:var(--brand);color:var(--ivory);padding:6px 16px;cursor:pointer;font-size:15px}
+@media (max-width:420px){.composer{grid-template-columns:minmax(0,1fr) auto}.composer select{grid-column:1 / -1}}
+details.cfg{border-top:1px solid var(--border);padding:10px 16px 14px}
+details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
+.cfg-body{display:flex;flex-direction:column;gap:12px;margin-top:10px;font-size:14px}
+.cfg-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.cfg-label{font-size:12.5px;color:var(--stone);width:100%;letter-spacing:.06em}
+.cfg-body label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.cfg-body input[type=checkbox]{accent-color:var(--brand)}
+.cfg-body select{font-size:13.5px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);padding:2px 6px}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.rules label{flex-direction:column;align-items:flex-start;gap:2px}
+
+.trace{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.trace-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:center}
+.trace-top .now{font-size:15px;min-width:0;overflow-wrap:anywhere}
+.trace-meta{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+.stats{font-family:var(--mono);font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:500}
+.speed{display:inline-flex;align-items:center;gap:2px;font-size:12.5px;color:var(--stone)}
+.speed button{border:0;background:transparent;color:var(--stone);padding:2px 8px;border-radius:999px;cursor:pointer;font-size:12.5px}
+.speed button[aria-pressed="true"]{background:var(--tag);color:var(--brand)}
+
+.flow-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px;background:var(--parchment);padding:6px 8px}
+#flow{display:block;width:100%;height:auto;min-width:560px;color:var(--stone)}
+.fl-dash{stroke-dasharray:5 4}
+.fl-node rect{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2;transition:stroke .25s ease,fill .25s ease,stroke-width .25s ease}
+.fl-node.model rect{fill:var(--brand-tint);stroke:var(--brand)}
+.fl-node.hit-pass rect{stroke:var(--go);stroke-width:2.6}
+.fl-node.hit-fail rect{stroke:var(--stop);stroke-width:2.6;fill:var(--stop-tint)}
+.fl-node.hit-think rect{stroke-width:3}
+.fl-bin rect{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2;transition:stroke-width .25s ease}
+.fl-bin text{font-size:12.5px;font-family:var(--serif);font-weight:500}
+.fl-bin .fl-n{font-family:var(--mono)}
+.b-drop rect,.b-ignore rect{fill:var(--sand)} .b-drop text,.b-ignore text{fill:var(--olive)}
+.b-stop rect{fill:var(--stop-tint);stroke:var(--stop)} .b-stop text{fill:var(--stop)}
+.b-observe rect{fill:var(--brand-tint);stroke:var(--brand)} .b-observe text{fill:var(--brand)}
+.b-ask rect{fill:var(--ask-tint);stroke:var(--ask)} .b-ask text{fill:var(--ask)}
+.b-accept rect{fill:var(--go-tint);stroke:var(--go)} .b-accept text{fill:var(--go)}
+.fl-bin.lit rect{stroke-width:3.2}
+.tok-r{fill:var(--ivory);stroke:var(--brand);stroke-width:1.6}
+.tok-t{fill:var(--ink);font-size:12px;font-family:var(--serif)}
+#tok{transition:opacity .35s ease}
+#tok.gone{opacity:0}
+#tok.k-drop .tok-r,#tok.k-ignore .tok-r{stroke:var(--stone)}
+#tok.k-stop .tok-r{stroke:var(--stop)}
+#tok.k-observe .tok-r{stroke:var(--brand)}
+#tok.k-ask .tok-r{stroke:var(--ask)}
+#tok.k-accept .tok-r{stroke:var(--go)}
+.cost-pop{fill:var(--brand);font-size:11.5px;font-family:var(--mono);opacity:0;transition:opacity .3s ease}
+.cost-pop.show{opacity:1}
+
+.stages{display:flex;flex-direction:column;gap:8px}
+.stage{border:1px solid var(--border2);border-radius:4px;padding:9px 14px;background:var(--ivory);transition:opacity .35s ease}
+.stage.pending{opacity:.3}
+.stage.skip{opacity:.5;border-style:dashed}
+.st-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.st-n{font-family:var(--mono);font-size:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border2);color:var(--stone)}
+.st-name{font-weight:500;font-size:15px}
+.cost{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:999px;background:var(--sand);color:var(--olive)}
+.cost.model{background:var(--tag);color:var(--brand)}
+.st-res{margin-left:auto;font-size:13px;font-weight:500}
+.stage.pass .st-res{color:var(--go)} .stage.fail .st-res{color:var(--stop)} .stage.skip .st-res{color:var(--stone)}
+.stage.pass .st-n{border-color:var(--go);color:var(--go)} .stage.fail .st-n{border-color:var(--stop);color:var(--stop)}
+.checks{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.5}
+.checks li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px}
+.checks li::before{font-family:var(--mono)}
+.checks li.ok::before{content:"✓";color:var(--go)}
+.checks li.no::before{content:"✗";color:var(--stop)}
+.checks li.info::before{content:"·";color:var(--stone)}
+.checks li.warn::before{content:"!";color:var(--ask)}
+.checks .note{color:var(--stone)}
+
+.decision{border-radius:4px;padding:11px 14px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--border2);transition:opacity .35s ease}
+.decision.pending{opacity:.3}
+.d-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-size:12.5px;font-weight:500;padding:1px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.k-drop,.k-ignore{color:var(--olive)} .k-observe{color:var(--brand)} .k-ask{color:var(--ask)} .k-accept{color:var(--go)} .k-stop{color:var(--stop)}
+.decision.k-drop,.decision.k-ignore{background:var(--sand)}
+.decision.k-observe{background:var(--brand-tint);border-color:var(--brand)}
+.decision.k-ask{background:var(--ask-tint);border-color:var(--ask)}
+.decision.k-accept{background:var(--go-tint);border-color:var(--go)}
+.decision.k-stop{background:var(--stop-tint);border-color:var(--stop)}
+.decision .why{color:var(--ink);font-size:14.5px}
+.decision .say{font-size:14.5px;color:var(--ink)}
+.decision .say span{color:var(--stone)}
+
+details.peek{border-top:1px dashed var(--border2);padding-top:10px}
+details.peek summary{cursor:pointer;font-size:14px;color:var(--olive)}
+.peek-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
+@media (max-width:640px){.peek-grid{grid-template-columns:minmax(0,1fr)}}
+.peek-grid .lbl{font-size:12.5px;color:var(--stone);margin-bottom:4px}
+
+/* code + syntax highlighting */
+pre.code{margin:0;background:var(--code);color:var(--ink);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12.8px;line-height:1.65;letter-spacing:0;overflow-x:auto;white-space:pre;tab-size:2;font-variant-ligatures:none}
+.tk-k{color:var(--hl-kw);font-weight:500}
+.tk-t{color:var(--hl-type)}
+.tk-s{color:var(--hl-str)}
+.tk-c{color:var(--hl-com)}
+.tk-n{color:var(--hl-num)}
+.tk-f{color:var(--hl-fn)}
+.tk-p{color:var(--hl-kw)}
+.code-wrap{position:relative}
+.code-wrap pre.code{padding-top:40px}
+.code-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px 0 14px;font-family:var(--mono);font-size:12px;color:var(--stone)}
+.copy{font-size:12.5px;padding:2px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer;font-family:var(--serif)}
+
+/* figures */
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.diagram-container{width:100%;overflow-x:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0}
+.diagram-container svg{display:block;width:100%;height:auto;min-width:760px;color:var(--stone)}
+figcaption{font-size:14px;color:var(--olive);line-height:1.55}
+figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
+.sv-box{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2}
+.sv-bot{fill:var(--brand-tint);stroke:var(--brand);stroke-width:1.2}
+.sv-soft{fill:var(--sand);stroke:var(--border2);stroke-width:1}
+.sv-t{fill:var(--ink);font-size:14px;font-weight:500;font-family:var(--serif)}
+.sv-s{fill:var(--olive);font-size:12.5px;font-family:var(--serif)}
+.sv-m{fill:var(--stone);font-size:11.5px;font-family:var(--mono)}
+.sv-stop{fill:var(--stop);font-size:12.5px;font-weight:500;font-family:var(--serif)}
+.sv-ln{stroke:currentColor;stroke-width:1.2;fill:none}
+.sv-ln-stop{stroke:var(--stop);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+.sv-mk{fill:currentColor}
+.sv-dot{fill:var(--brand)}
+.sv-axis{stroke:var(--border2);stroke-width:1}
+.mask-p{fill:var(--parchment)}
+
+/* diagram-design motion (step mode) */
+.motion-ready [data-motion-item]{opacity:.12;transform:translateY(8px);transform-box:fill-box;transform-origin:center;transition:opacity var(--motion-step) var(--motion-ease),transform var(--motion-step) var(--motion-ease)}
+.motion-ready [data-motion-item].is-visible,.motion-ready[data-frame="end"] [data-motion-item],.motion-ready[data-frame="static"] [data-motion-item]{opacity:1;transform:none}
+.draw-path{fill:none;stroke:var(--brand);stroke-width:3;stroke-dasharray:1;stroke-dashoffset:1;pointer-events:none}
+.motion-ready .draw-path.is-visible{animation:draw-path var(--motion-step) linear forwards}
+@keyframes draw-path{to{stroke-dashoffset:0}}
+[data-motion-controls]{display:none;align-items:center;flex-wrap:wrap;gap:8px}
+.motion-ready [data-motion-controls]{display:flex}
+[data-motion-controls][hidden]{display:none !important}
+[data-motion-controls] button{min-width:44px;min-height:44px;padding:8px 14px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);font-size:14px;cursor:pointer}
+[data-motion-controls] button:hover{border-color:var(--brand);color:var(--brand)}
+[data-motion-controls] button[data-motion-action="play"]{background:var(--brand);border-color:var(--brand);color:var(--ivory)}
+[data-motion-controls] button:disabled{cursor:not-allowed;opacity:.45}
+.keyboard-help{font-size:12.5px;color:var(--stone)}
+[data-motion-status-visible]{margin-left:auto;font-size:13px;color:var(--olive);font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html[data-motion="static"] [data-motion-controls],html[data-motion="static"] [data-motion-decorative]{display:none !important}
+html[data-motion="static"] [data-motion-item]{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+html[data-motion="step"] [data-motion-controls],html[data-motion="step"] [data-motion-decorative]{display:none !important}
+html[data-motion="step"] [data-motion-item]{animation:none !important;transition:none !important}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important}
+  [data-motion-item]{opacity:1 !important;transform:none !important}
+  [data-motion-decorative]{display:none !important}
+  [data-motion-controls]{display:none !important}
+}
+@media print{
+  .diagram-container{overflow-x:visible}
+  .diagram-container svg{min-width:0}
+  [data-motion-controls],[data-motion-decorative]{display:none !important}
+  [data-motion-item]{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;background:var(--ivory);border-radius:4px;padding:16px 20px}
+@media (max-width:600px){.calc{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:2px}
+.field label{display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+.field output{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.field input{width:100%;accent-color:var(--brand)}
+.calc-out{display:flex;flex-direction:column;gap:8px}
+.meter{display:flex;height:18px;border-radius:3px;overflow:hidden;background:var(--sand)}
+.meter .m-model{background:var(--brand);transition:width .3s ease}
+.calc-out .big{font-family:var(--mono);font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2}
+.calc-out .row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--olive)}
+.calc-out .row span:first-child{color:var(--brand)}
+
+.tbl{overflow-x:auto;border-top:1px solid var(--ink2);border-bottom:1px solid var(--ink2)}
+.tbl table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
+.tbl th,.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:400}
+.tbl thead th{font-size:13px;color:var(--olive);letter-spacing:.06em;border-bottom:1px solid var(--border2)}
+.tbl.rh tbody th{white-space:nowrap;color:var(--ink2)}
+.tbl tr:last-child td,.tbl tr:last-child th{border-bottom:0}
+
+.quiz{display:flex;flex-direction:column;gap:22px}
+.q{display:flex;flex-direction:column;gap:10px}
+.q h3{font-size:16.5px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{font-size:14.5px;padding:4px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--ivory);color:var(--ink);cursor:pointer}
+.opts button:hover{border-color:var(--brand)}
+.opts button.right{border-color:var(--go);background:var(--go-tint);color:var(--go)}
+.opts button.wrong{border-color:var(--stop);background:var(--stop-tint);color:var(--stop)}
+.q .exp{font-size:15px;background:var(--ivory);border-radius:4px;padding:10px 14px;color:var(--ink2)}
+
+.next{display:flex;flex-direction:column;gap:4px;background:var(--ivory);border-radius:4px;padding:16px 20px}
+.next .ch{font-size:12.5px;letter-spacing:.2em;color:var(--brand)}
+.notes{font-size:13.5px;color:var(--stone);border-top:1px solid var(--border);padding-top:14px;line-height:1.6}
+@media (prefers-reduced-motion:reduce){.stage,.decision,.meter .m-model,#tok,.fl-node rect{transition:none}}
+
+/* navigation (shared across chapters) */
+.runhead a{color:inherit;text-decoration:none}
+.runhead a:hover{color:var(--brand)}
+a.next{text-decoration:none;color:inherit;border:1px solid transparent}
+a.next:hover{border-color:var(--brand)}
+a.next:hover h3{color:var(--brand)}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14.5px}
+.pager a{color:var(--brand);text-decoration:none}
+.pager a:hover{text-decoration:underline}
+/* generic controls */
+.btn{min-height:44px;padding:8px 16px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);font-size:14.5px;cursor:pointer}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--ivory)}
+.btn.primary:hover{color:var(--ivory)}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--border2);border-radius:4px;overflow:hidden;background:var(--ivory)}
+.seg button{min-height:40px;padding:6px 14px;border:0;background:transparent;color:var(--ink2);font-size:14px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--border2)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--ivory)}
+.free{font-size:12px;letter-spacing:.08em;padding:1px 8px;border-radius:999px;background:var(--go-tint);color:var(--go);white-space:nowrap}
+
+/* ch2: event bench */
+.bench{border:1px solid var(--border2);border-radius:6px;background:var(--ivory);overflow:hidden}
+.bench-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.bench-top .lbl{font-size:13px;color:var(--stone);letter-spacing:.06em}
+.bench-body{display:grid;grid-template-columns:220px minmax(0,1fr);min-width:0}
+@media (max-width:860px){.bench-body{grid-template-columns:minmax(0,1fr)}}
+.samples{display:flex;flex-direction:column;gap:6px;padding:14px;border-right:1px solid var(--border);background:var(--code)}
+@media (max-width:860px){.samples{border-right:0;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:wrap}}
+.samples button{display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left;padding:8px 12px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);cursor:pointer;font-size:14.5px;line-height:1.45}
+.samples button span{font-size:12.5px;color:var(--stone)}
+.samples button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-tint)}
+.samples button.muted-sample{opacity:.55}
+@media (max-width:860px){.samples button{flex:1 1 140px}}
+.panes{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;padding:14px;min-width:0}
+@media (max-width:1000px){.panes{grid-template-columns:minmax(0,1fr)}}
+.pane{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pane .lbl{font-size:12.5px;color:var(--stone);letter-spacing:.04em}
+.pane pre.code{min-height:120px;font-size:12.2px}
+.pane pre.code .ln{display:block;padding:0 6px;margin:0 -6px;border-radius:2px}
+.pane pre.code .ln.on{background:var(--tag)}
+.pane pre.code.empty{display:flex;align-items:center;justify-content:center;color:var(--stone);font-family:var(--serif);white-space:normal;text-align:center}
+.bench-result{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;padding:12px 16px 14px;border-top:1px solid var(--border)}
+.bench-result .note{font-size:14.5px;color:var(--ink2);flex:1 1 320px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="runhead"><a href="../">不用 @ 的 AI 同事</a><span>第二章　让它听见整个群</span></div>
+
+<header class="opener">
+  <span class="ch-num" aria-hidden="true">2</span>
+  <div><span class="ch-label">第二章</span><h1>让它听见整个群</h1></div>
+  <p class="lede">飞书默认只把 @ 机器人的消息推给它。要让小橙旁听全群，得先拿到一项要管理员审批的权限，再把飞书推来的事件接住、去重、整理成统一的格式，然后立刻放进队列。接入层要快，不能让飞书在门口等。</p>
+  <div class="keypoints"><span>本章要点　约 15 分钟</span><span>为什么普通机器人只听得见 @ 它的消息</span><span>飞书的消息事件长什么样，哪些字段有用</span><span>同一条消息为什么会推两次，怎么防</span></div>
+</header>
+
+<!-- ============ HERO: event bench ============ -->
+<section class="plate" aria-label="事件拆解台">
+  <p class="hint"><span>动手拆一拆。</span>左边是六种群消息。点一种，看飞书推来的原始事件，和接入层整理出来的 Trigger。高亮的是这一种消息里最要紧的字段。再把上面的权限切到“只收 @”，看哪些消息根本到不了小橙。</p>
+  <div class="bench">
+    <div class="bench-top">
+      <span class="lbl">应用权限</span>
+      <div class="seg" role="group" aria-label="应用权限">
+        <button type="button" id="perm-at" aria-pressed="false">只收 @ 机器人的消息</button>
+        <button type="button" id="perm-all" aria-pressed="true">获取群组中所有消息</button>
+      </div>
+    </div>
+    <div class="bench-body">
+      <div class="samples" id="samples" role="group" aria-label="消息示例"></div>
+      <div class="panes">
+        <div class="pane"><span class="lbl">飞书推来的原始事件 im.message.receive_v1（节选）</span><pre class="code" id="raw" tabindex="0" aria-label="原始事件"></pre></div>
+        <div class="pane"><span class="lbl">接入层整理出的 Trigger</span><pre class="code" id="trg" tabindex="0" aria-label="整理后的 Trigger"></pre></div>
+      </div>
+    </div>
+    <div class="bench-result" aria-live="polite"><span id="res-pill"></span><span class="note" id="res-note"></span></div>
+  </div>
+  <p class="figlabel"><b>图 2-1</b>事件拆解台。字段结构按飞书开放平台的消息事件简化，ID 为示意值。</p>
+</section>
+
+<!-- ============ 2.1 ============ -->
+<section class="col">
+  <span class="sec-no">2.1</span>
+  <h2>默认只听得见 @</h2>
+  <p class="lead">把机器人拉进群，它只收得到 @ 它的消息。这是飞书有意的设计：读全群消息是敏感权限，要在开发者后台单独申请“获取群组中所有消息”，再由企业管理员审批。</p>
+  <p>在拆解台里切到“只收 @”，六种消息只剩一种还能到达。王姐那条订单 bug 没有 @ 任何人，飞书压根不会推送，小橙后面的判断写得再好也没用。所以申请权限是第一步，而且要尽早，审批可能要走几天。</p>
+  <p>权限批下来以后，还有两件事要做。一是只把小橙拉进工作群，第 3 章的旁听白名单是第二道保险。二是在群公告里写清楚“小橙会读这个群的消息，用来识别要做的事”。没打招呼就让一个 AI 读全群，推广时一定会被问到。</p>
+</section>
+
+<!-- ============ 2.2 ============ -->
+<section class="col">
+  <span class="sec-no">2.2</span>
+  <h2>长连接还是 HTTP 回调</h2>
+  <p class="lead">飞书有两种推事件的方式。起步阶段选长连接：不用公网地址，不用自己验签解密，在笔记本上就能跑起来。</p>
+  <p class="figlabel"><b>表 2-1</b>两种接收方式</p>
+  <div class="tbl rh">
+    <table>
+      <thead><tr><th></th><th>长连接（WebSocket）</th><th>HTTP 回调</th></tr></thead>
+      <tbody>
+        <tr><th>要不要公网地址</th><td>不要，应用主动连飞书</td><td>要，飞书来调你的接口</td></tr>
+        <tr><th>验签、解密</th><td>官方 SDK 建连时处理好</td><td>自己实现</td></tr>
+        <tr><th>适用范围</th><td>企业自建应用</td><td>自建应用和商店应用</td></tr>
+        <tr><th>适合</th><td>内网、开发机、团队内部推广</td><td>已有网关、要上架给别的企业用</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>两种方式推来的事件内容一样，后面的代码不用改。这门课用长连接。</p>
+</section>
+
+<!-- ============ 2.3 ============ -->
+<section class="col">
+  <span class="sec-no">2.3</span>
+  <h2>先确认，再干活</h2>
+  <p class="lead">飞书要求在 3 秒内处理完一个事件，超时就当作没送到，过一会儿再推一次，event_id 不变。所以接入层只做三件轻活：解析、去重、入队，然后马上返回。</p>
+  <figure class="wide" data-motion-root data-motion-mode="step" data-step-count="5" data-step-current="5" data-frame="static" data-static-frame="complete">
+    <div class="diagram-container">
+      <svg viewBox="0 0 760 228" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="f22-title f22-desc">
+        <title id="f22-title">接入层的确认与去重</title>
+        <desc id="f22-desc">飞书把事件推给接入层；接入层解析后放进队列，并在 3 秒内确认；没按时确认的事件会被飞书用同一个 event_id 重推，接入层认出重复后丢掉；Router 按自己的节奏从队列里成批取走。</desc>
+        <defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="sv-mk"/></marker></defs>
+
+        <g data-motion-item data-step="1" aria-label="第 1 步：飞书把消息事件推给接入层">
+          <path d="M144,68 H214" class="sv-ln" marker-end="url(#c1)"/>
+          <rect x="163" y="48" width="34" height="16" class="mask-p"/><text x="180" y="60" text-anchor="middle" class="sv-s">事件</text>
+        </g>
+        <g data-motion-item data-step="2" aria-label="第 2 步：接入层解析、记下 event_id，放进队列">
+          <path d="M344,84 H414" class="sv-ln" marker-end="url(#c1)"/>
+          <rect x="363" y="64" width="34" height="16" class="mask-p"/><text x="380" y="76" text-anchor="middle" class="sv-s">入队</text>
+        </g>
+        <g data-motion-item data-step="3" aria-label="第 3 步：接入层在 3 秒内向飞书确认">
+          <path d="M216,96 H146" class="sv-ln" marker-end="url(#c1)"/>
+          <rect x="146" y="104" width="68" height="16" class="mask-p"/><text x="180" y="116" text-anchor="middle" class="sv-s">3 秒内确认</text>
+        </g>
+        <g data-motion-item data-step="4" aria-label="第 4 步：没按时确认的事件被飞书重推，event_id 不变；接入层认出重复，丢掉">
+          <path d="M80,120 V176 A8,8 0 0 0 88,184 H240 A8,8 0 0 0 248,176 V122" class="sv-ln fl-dash" marker-end="url(#c1)"/>
+          <rect x="106" y="175" width="116" height="18" class="mask-p"/><text x="164" y="188" text-anchor="middle" class="sv-s">超时重推，ID 不变</text>
+          <path d="M312,120 V176 A8,8 0 0 0 320,184 H414" class="sv-ln" marker-end="url(#c1)"/>
+          <rect x="334" y="175" width="64" height="18" class="mask-p"/><text x="366" y="188" text-anchor="middle" class="sv-s">见过，丢掉</text>
+          <rect x="416" y="162" width="128" height="44" rx="4" class="sv-soft"/>
+          <text x="480" y="189" text-anchor="middle" class="sv-s">丢弃 · 重复事件</text>
+        </g>
+        <g data-motion-item data-step="5" aria-label="第 5 步：Router 按自己的节奏，从队列里成批取走">
+          <path d="M544,84 H614" class="sv-ln" marker-end="url(#c1)"/>
+          <rect x="553" y="64" width="54" height="16" class="mask-p"/><text x="580" y="76" text-anchor="middle" class="sv-s">攒批取走</text>
+        </g>
+
+        <rect x="16" y="48" width="128" height="72" rx="4" class="sv-box"/>
+        <text x="80" y="80" text-anchor="middle" class="sv-t">飞书开放平台</text><text x="80" y="100" text-anchor="middle" class="sv-s">推送消息事件</text>
+        <rect x="216" y="48" width="128" height="72" rx="4" class="sv-box"/>
+        <text x="280" y="80" text-anchor="middle" class="sv-t">接入层</text><text x="280" y="100" text-anchor="middle" class="sv-s">解析 · 去重 · 入队</text>
+        <rect x="416" y="48" width="128" height="72" rx="4" class="sv-box"/>
+        <text x="480" y="80" text-anchor="middle" class="sv-t">队列</text><text x="480" y="100" text-anchor="middle" class="sv-s">等 Router 来取</text>
+        <rect x="616" y="48" width="128" height="72" rx="4" class="sv-bot"/>
+        <text x="680" y="80" text-anchor="middle" class="sv-t">Router</text><text x="680" y="100" text-anchor="middle" class="sv-m">第 3 章</text>
+
+        <path data-motion-item data-step="1" data-motion-decorative aria-hidden="true" focusable="false" pathLength="1" class="draw-path" d="M144,68 H214"/>
+        <path data-motion-item data-step="3" data-motion-decorative aria-hidden="true" focusable="false" pathLength="1" class="draw-path" d="M216,96 H146"/>
+      </svg>
+    </div>
+    <div data-motion-controls role="group" aria-label="图 2-2 播放控制">
+      <button type="button" data-motion-action="prev">上一步</button>
+      <button type="button" data-motion-action="play" aria-pressed="false">播放</button>
+      <button type="button" data-motion-action="pause" aria-pressed="true">暂停</button>
+      <button type="button" data-motion-action="next">下一步</button>
+      <button type="button" data-motion-action="replay">重播</button>
+      <span class="keyboard-help">← → 单步 · 空格 播放或暂停 · R 重播</span>
+      <span data-motion-status-visible aria-hidden="true">第 <span data-motion-step-label>5</span> / 5 步</span>
+    </div>
+    <p class="sr-only" data-motion-status role="status" aria-live="polite" aria-atomic="true"></p>
+    <figcaption><b>图 2-2</b>点“播放”分五步看。接入层和 Router 之间隔着一个队列：飞书那边要快，Router 这边按自己的节奏攒批判断，两边互不拖累。</figcaption>
+  </figure>
+  <p>最常见的错误，是在事件处理函数里直接调模型做判断。模型一次要好几秒，超过 3 秒，飞书就会重推，同一条消息被判断两次，小橙可能在群里回两遍。在拆解台点“重复推送”，看去重是怎么拦住它的。</p>
+  <p>去重表记最近一天的 event_id 就够了。如果接入层部署了多个实例，去重表要放在共享存储里，比如 Redis，否则重推的事件落到另一个实例上就认不出来。</p>
+</section>
+
+<!-- ============ 2.4 ============ -->
+<section class="col">
+  <span class="sec-no">2.4</span>
+  <h2>核心代码</h2>
+  <p class="lead">接入层分两半。上半段连上飞书、去重、入队；下半段把五花八门的消息整理成第 1 章定义的 Trigger，Router 只认这一种格式。</p>
+  <p class="figlabel"><b>代码 2-1</b>ingest.ts</p>
+  <div class="code-wrap">
+    <div class="code-bar"><span>ingest.ts · TypeScript</span><button class="copy" type="button" id="copy">复制</button></div>
+    <pre class="code" id="code-pre" tabindex="0" aria-label="ingest.ts 代码"></pre>
+  </div>
+  <p class="small muted">代码用飞书官方 Node.js SDK（@larksuiteoapi/node-sdk）。TtlSet、TriggerQueue、flattenPost 等辅助函数在完整仓库里。本页为教学简化版。</p>
+</section>
+
+<section class="col">
+  <span class="sec-no">练习</span>
+  <h2>先猜，再验证</h2>
+  <p>每题想好答案再点。答完可以回拆解台复现。</p>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<section class="col">
+  <a class="next" href="../ch3/">
+    <span class="ch">下一章　第三章</span>
+    <h3>先过滤，再判断</h3>
+    <p class="small muted">消息进了队列，Router 怎么决定理不理、该不该接。附一个可以自己发消息、改群规则的模拟器。</p>
+  </a>
+  <div class="pager"><a href="../ch1/">← 第一章　机器人和同事差在哪</a><a href="../">课程目录</a></div>
+  <p class="notes">注：事件字段依据飞书开放平台“接收消息”事件（im.message.receive_v1）整理并做了删减，权限名称和审批流程以你所在企业的开发者后台为准。群聊中的人物与对话均为虚构示例。</p>
+</section>
+
+<div class="folio">第 2 章 / 共 10 章</div>
+</div>
+
+<script type="text/plain" id="code-src">// ingest.ts：接住飞书事件，3 秒内返回，剩下的交给队列
+import * as Lark from '@larksuiteoapi/node-sdk';
+
+const seen = new TtlSet<string>(24 * 3600 * 1000); // 记住一天内见过的 event_id
+const queue = new TriggerQueue();                   // Router 从这里成批取
+
+const dispatcher = new Lark.EventDispatcher({}).register({
+  'im.message.receive_v1': async (data) => {
+    if (seen.has(data.event_id)) return;            // 飞书重推，丢掉
+    seen.add(data.event_id);
+    const t = normalize(data);
+    if (t) queue.push(t);                           // 只入队，不在这里调模型
+  },
+});
+
+const ws = new Lark.WSClient({ appId: env.APP_ID, appSecret: env.APP_SECRET });
+ws.start({ eventDispatcher: dispatcher });          // 长连接：不需要公网地址
+
+// 把飞书的消息事件整理成第 1 章的 Trigger
+export function normalize(e: MessageEvent): Trigger | null {
+  const m = e.message;
+  if (m.chat_type !== 'group') return null;         // 这门课只处理群消息
+  const mentions = m.mentions ?? [];
+  const text = readText(m.message_type, m.content, mentions);
+  if (text === null) return null;                   // 暂不支持的消息类型
+  return {
+    eventId: e.event_id,
+    chatId: m.chat_id,
+    threadId: m.root_id || undefined,               // 第 7 章靠它把追问送到工单
+    senderId: e.sender.sender_id.open_id,           // 权限只认这个，第 3 章
+    text,
+    mentionsBot: mentions.some(x => x.id.open_id === env.BOT_OPEN_ID),
+    at: Number(m.create_time),
+  };
+}
+
+function readText(type: string, content: string, mentions: Mention[]): string | null {
+  const c = JSON.parse(content);                    // content 本身是一段 JSON 字符串
+  let text: string;
+  if (type === 'text') text = c.text;
+  else if (type === 'post') text = flattenPost(c);  // 富文本：拼成纯文本，保留换行
+  else if (type === 'image') text = '[图片]';       // Worker 需要时再用 image_key 下载
+  else return null;
+  for (const x of mentions) text = text.replaceAll(x.key, '@' + x.name); // @_user_1 → @小橙
+  return text;
+}</script>
+
+<script>
+var Course = (function(){
+  var esc = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var KW = /^(type|const|let|var|export|import|from|function|return|if|else|for|of|async|await|as|new|null|true|false|undefined)$/;
+  var TOKEN = /(\/\/[^\n]*)|('(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\/\^(?:[^\/\\\n]|\\.)+\/[gimsuy]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)|([\s\S])/g;
+  function span(cls, s){ return '<span class="'+cls+'">'+esc(s)+'</span>'; }
+  function highlightTS(src){
+    var out = '', m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(src))) {
+      if (m[1]) out += span('tk-c', m[1]);
+      else if (m[2]) out += span('tk-s', m[2]);
+      else if (m[3] || m[4]) out += span('tk-n', m[3] || m[4]);
+      else if (m[5]) {
+        var w = m[5], rest = src.slice(TOKEN.lastIndex), next = rest.replace(/^\s+/, '').charAt(0);
+        if (KW.test(w)) out += span('tk-k', w);
+        else if (/^(string|number|boolean|void|unknown|any)$/.test(w)) out += span('tk-t', w);
+        else if (next === '(' || /^<\w+>\(/.test(rest)) out += span('tk-f', w);
+        else if (/^[A-Z]/.test(w)) out += span('tk-t', w);
+        else out += esc(w);
+      }
+      else out += esc(m[6]);
+    }
+    return out;
+  }
+  function highlightJSON(src){
+    return src.replace(/("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?)|(true|false|null)|([\s\S])/g, function(m, str, colon, num, lit){
+      if (str) return colon ? span('tk-p', str) + colon : span('tk-s', str);
+      if (num) return span('tk-n', num);
+      if (lit) return span('tk-k', lit);
+      return esc(m);
+    });
+  }
+  function mountCode(srcId, preId, copyId){
+    var src = document.getElementById(srcId).textContent, pre = document.getElementById(preId);
+    pre.innerHTML = highlightTS(src);
+    document.getElementById(copyId).addEventListener('click', function(){
+      var btn = this;
+      var done = function(){ btn.textContent = '已复制'; setTimeout(function(){ btn.textContent = '复制'; }, 1500); };
+      var fail = function(){ var r = document.createRange(); r.selectNodeContents(pre); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = '已选中，按 Ctrl+C 复制'; };
+      try { navigator.clipboard.writeText(src).then(done, fail); } catch(e){ fail(); }
+    });
+  }
+  function mountQuiz(el, QUIZ){
+    QUIZ.forEach(function(item, qi){
+      var box = document.createElement('div'); box.className = 'q';
+      box.innerHTML = '<h3>'+(qi+1)+'.　'+esc(item.q)+'</h3><div class="opts" role="group" aria-label="选项"></div><p class="exp" hidden></p>';
+      var opts = box.querySelector('.opts'), exp = box.querySelector('.exp');
+      item.opts.forEach(function(o, oi){
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = o;
+        b.addEventListener('click', function(){
+          opts.querySelectorAll('button').forEach(function(x, xi){ x.classList.remove('right','wrong'); if (xi === item.a) x.classList.add('right'); });
+          if (oi !== item.a) b.classList.add('wrong');
+          exp.textContent = (oi === item.a ? '答对了。' : '再想想。') + item.exp; exp.hidden = false;
+        });
+        opts.appendChild(b);
+      });
+      el.appendChild(box);
+    });
+  }
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
+  return {esc:esc, span:span, highlightTS:highlightTS, highlightJSON:highlightJSON, mountCode:mountCode, mountQuiz:mountQuiz, reduce:reduce};
+})();
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = Course.esc;
+
+  var BOT = 'ou_bot_xiaocheng', CHAT = 'oc_mobile_9b21', APP = 'cli_a7f3c2e1d0b9';
+  var U = {wangjie:'ou_wangjie_7c1e', xiaolin:'ou_xiaolin_2a90', ajie:'ou_ajie_5d34'};
+  function ev(o){
+    var msg = {message_id:o.mid};
+    if (o.root) { msg.root_id = o.root; msg.parent_id = o.root; }
+    msg.create_time = o.ts; msg.chat_id = CHAT; msg.chat_type = 'group';
+    msg.message_type = o.type; msg.content = JSON.stringify(o.content);
+    if (o.mentions) msg.mentions = o.mentions;
+    return {
+      schema:'2.0',
+      header:{event_id:o.eid, event_type:'im.message.receive_v1', create_time:o.ts, app_id:APP},
+      event:{sender:{sender_id:{open_id:U[o.who]}, sender_type:'user'}, message:msg}
+    };
+  }
+  function trig(o, text){
+    var t = {eventId:o.eid, chatId:CHAT};
+    if (o.root) t.threadId = o.root;
+    t.senderId = U[o.who]; t.text = text; t.mentionsBot = !!o.mentions; t.at = Number(o.ts);
+    return t;
+  }
+  var base = {eid:'5e37a1c90b2d4f86', mid:'om_a101', ts:'1793952060000', who:'wangjie', type:'text', content:{text:'好几个用户说安卓上订单页一直转圈'}};
+  var SAMPLES = [
+    {title:'纯文本', sub:'王姐 · 没有 @ 任何人', o:base, text:base.content.text, needsAll:true,
+     rawKeys:['event_id','open_id','chat_id','content'], trgKeys:['eventId','senderId','chatId','text'],
+     kind:'accept', res:'入队，交给 Router',
+     note:'最普通的一条。content 是一段 JSON 字符串，要再解析一次才拿得到文字。发送者 open_id 由飞书填写，消息里写什么都改不了它。'},
+    {title:'@小橙', sub:'王姐 · 点名提问', o:{eid:'9a41c7e2d8f05b13', mid:'om_a102', ts:'1793952120000', who:'wangjie', type:'text', content:{text:'@_user_1 新版本上线了吗？'},
+       mentions:[{key:'@_user_1', id:{open_id:BOT}, name:'小橙'}]}, text:'@小橙 新版本上线了吗？', needsAll:false,
+     rawKeys:['content','key','name'], trgKeys:['text','mentionsBot'],
+     kind:'accept', res:'入队，交给 Router',
+     note:'文字里的 @小橙 变成了占位符 @_user_1，真名和 open_id 在 mentions 里。拿 mentions 里的 open_id 和小橙自己的比一下，才知道是不是在叫它。'},
+    {title:'线程回复', sub:'小林 · 在小橙的提问下回“1”', o:{eid:'c03b8e5f1a6d2947', mid:'om_a103', root:'om_x201', ts:'1793952180000', who:'xiaolin', type:'text', content:{text:'1'}},
+     text:'1', needsAll:true, rawKeys:['root_id','parent_id'], trgKeys:['threadId'],
+     kind:'accept', res:'入队，交给 Router',
+     note:'线程里的回复带着 root_id，也就是这个线程第一条消息的 ID。只看文字“1”什么也不是；有了 threadId，第 7 章就能把它直接送进对应的工单。'},
+    {title:'富文本', sub:'阿杰 · 带标题的复现步骤', o:{eid:'7d2f0a9c4e8b1365', mid:'om_a104', ts:'1793952240000', who:'ajie', type:'post',
+       content:{title:'订单页复现步骤', content:[[{tag:'text', text:'1. 安卓 14，打开订单页'}],[{tag:'text', text:'2. 切到“全部”标签，一直转圈'}]]}},
+     text:'订单页复现步骤\n1. 安卓 14，打开订单页\n2. 切到“全部”标签，一直转圈', needsAll:true,
+     rawKeys:['message_type','content'], trgKeys:['text'],
+     kind:'accept', res:'入队，交给 Router',
+     note:'富文本的内容是二维数组：外层是段落，内层是一段里的文字、链接和 @。整理时拼成纯文本，保留换行，Router 不用关心原来是什么格式。'},
+    {title:'图片', sub:'王姐 · 发了一张截图', o:{eid:'e15c6b3a07f94d28', mid:'om_a105', ts:'1793952300000', who:'wangjie', type:'image', content:{image_key:'img_v3_02ab_1c9e'}},
+     text:'[图片]', needsAll:true, rawKeys:['message_type','content'], trgKeys:['text'],
+     kind:'accept', res:'入队，交给 Router',
+     note:'图片只给一个 image_key，没有内容。Router 判断只看文字，所以记成“[图片]”，通常会和前后几条消息合成一批一起判断。Worker 真要看图，再用 image_key 去下载。'},
+    {title:'重复推送', sub:'和第一条一模一样', o:base, text:base.content.text, needsAll:true, dup:true,
+     rawKeys:['event_id'], trgKeys:[],
+     kind:'drop', res:'丢弃：重复推送',
+     note:'连 event_id 都和第一条相同。上一次没在 3 秒内返回，飞书以为没送到，又推了一遍。去重表里已经有这个 event_id，直接丢掉，不会进队列。'}
+  ];
+  var S = {perm:'all', cur:0};
+
+  function linesHTML(json, keys){
+    return json.split('\n').map(function(line){
+      var on = keys.some(function(k){ return line.indexOf('"'+k+'":') > -1; });
+      return '<span class="ln'+(on?' on':'')+'">'+(Course.highlightJSON(line) || ' ')+'</span>';
+    }).join('');
+  }
+  function render(){
+    var s = SAMPLES[S.cur], raw = $('raw'), trg = $('trg');
+    var blocked = S.perm === 'at' && s.needsAll;
+    document.querySelectorAll('#samples button').forEach(function(b, i){
+      b.setAttribute('aria-pressed', String(i === S.cur));
+      b.classList.toggle('muted-sample', S.perm === 'at' && SAMPLES[i].needsAll);
+    });
+    if (blocked) {
+      raw.className = 'code empty'; raw.textContent = '飞书没有推送这条事件';
+      trg.className = 'code empty'; trg.textContent = '没有输入，也就没有 Trigger';
+      $('res-pill').innerHTML = '<span class="pill k-stop">到不了小橙</span>';
+      $('res-note').textContent = '当前只开了“接收 @ 机器人的消息”。这条消息没有 @ 小橙，飞书不会推送，后面的过滤、判断都无从谈起。切回“获取群组中所有消息”试试。';
+      return;
+    }
+    raw.className = 'code'; trg.className = 'code';
+    raw.innerHTML = linesHTML(JSON.stringify(ev(s.o), null, 2), s.rawKeys);
+    trg.innerHTML = s.dup ? '' : linesHTML(JSON.stringify(trig(s.o, s.text), null, 2), s.trgKeys);
+    if (s.dup) { trg.className = 'code empty'; trg.textContent = '去重表认出了这个 event_id，没有生成 Trigger'; }
+    $('res-pill').innerHTML = '<span class="pill k-'+s.kind+'">'+esc(s.res)+'</span>';
+    $('res-note').textContent = s.note;
+  }
+  var box = $('samples');
+  SAMPLES.forEach(function(s, i){
+    var b = document.createElement('button'); b.type = 'button';
+    b.innerHTML = esc(s.title)+'<span>'+esc(s.sub)+'</span>';
+    b.addEventListener('click', function(){ S.cur = i; render(); });
+    box.appendChild(b);
+  });
+  function setPerm(p){
+    S.perm = p;
+    $('perm-at').setAttribute('aria-pressed', String(p === 'at'));
+    $('perm-all').setAttribute('aria-pressed', String(p === 'all'));
+    render();
+  }
+  $('perm-at').addEventListener('click', function(){ setPerm('at'); });
+  $('perm-all').addEventListener('click', function(){ setPerm('all'); });
+  render();
+
+  Course.mountCode('code-src', 'code-pre', 'copy');
+  Course.mountQuiz($('quiz'), [
+    {q:'小橙只开了“接收 @ 机器人的消息”。王姐在群里发“订单页一直转圈”，没有 @。Router 会看到这条吗？', opts:['会，但判为闲聊','看不到，飞书根本不推','看得到，只是晚一点'], a:1,
+     exp:'看不到。没有“获取群组中所有消息”权限，飞书只推 @ 机器人的消息。在拆解台切到“只收 @”就能看到。'},
+    {q:'接入层在事件处理函数里直接调模型做判断，一次要 5 秒。会出什么问题？', opts:['没影响，只是慢一点','超过 3 秒，飞书会用同一个 event_id 重推','飞书会断开长连接'], a:1,
+     exp:'飞书以为没送到，过一会儿重推。没做去重的话，同一条消息会被判断两次，小橙可能在群里回两遍。正确做法是只入队，马上返回。'},
+    {q:'小林在小橙的提问下回了“1”。Trigger 里哪个字段，能让后面的代码把它送到对应的工单？', opts:['chatId','threadId','senderId'], a:1,
+     exp:'threadId，来自原始事件的 root_id。同一个群里可能同时有好几张工单，只有线程 ID 能对上是哪一张。'}
+  ]);
+})();
+</script>
+  <script data-diagram-controls>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const staticOverride = params.get('motion') === 'static' || document.documentElement.dataset.motion === 'static';
+      const requestedStep = params.get('step');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      document.fonts.ready.then(() => { document.documentElement.dataset.fontsReady = 'true'; });
+
+      document.querySelectorAll('[data-motion-root]').forEach((root) => {
+        const count = Number(root.dataset.stepCount);
+        const hold = parseFloat(getComputedStyle(root).getPropertyValue('--motion-hold')) || 720;
+        const parsedStep = requestedStep !== null && /^\d+$/.test(requestedStep) ? Number(requestedStep) : null;
+        const exactStep = params.get('motion') === 'step' && Number.isSafeInteger(parsedStep) && parsedStep >= 0 && parsedStep <= count ? parsedStep : null;
+        const items = [...root.querySelectorAll('[data-motion-item]')];
+        const labels = Array.from({ length: count + 1 }, (_, index) => index === 0
+          ? 'Ready'
+          : items.filter((item) => !item.hasAttribute('data-motion-decorative') && Number(item.dataset.step) === index)
+              .map((item) => item.getAttribute('aria-label')).join('; '));
+        const controls = root.querySelector('[data-motion-controls]');
+        const status = root.querySelector('[data-motion-status]');
+        const visibleStep = root.querySelector('[data-motion-step-label]');
+        let step = count;
+        let timer = 0;
+        let playing = false;
+        let stepBeforeReduce = 0;
+        let resumeAfterReduce = root.dataset.motionMode === 'reveal';
+
+        const buttons = (action) => controls.querySelector(`[data-motion-action="${action}"]`);
+        const clearClock = () => { window.clearTimeout(timer); timer = 0; };
+        const announce = () => { status.textContent = `Step ${step} of ${count}: ${labels[step] || 'Complete'}`; };
+        const setControlsAvailable = (available) => {
+          controls.hidden = !available;
+          controls.setAttribute('aria-hidden', String(!available));
+          controls.dataset.playbackDisabled = String(!available);
+          controls.querySelectorAll('button').forEach((control) => { control.disabled = !available; });
+        };
+
+        function render(next, userInitiated = false) {
+          step = Math.max(0, Math.min(count, next));
+          root.dataset.stepCurrent = String(step);
+          root.dataset.frame = step === count ? 'end' : step === 0 ? 'start' : 'step';
+          items.forEach((item) => {
+            const itemStep = Number(item.dataset.step);
+            item.classList.toggle('is-visible', itemStep <= step);
+            item.classList.toggle('is-current', itemStep === step);
+          });
+          if (visibleStep) visibleStep.textContent = String(step);
+          const unavailable = controls.dataset.playbackDisabled === 'true';
+          buttons('prev').disabled = unavailable || step === 0;
+          buttons('next').disabled = unavailable || step === count;
+          if (userInitiated) announce();
+        }
+
+        function pause(userInitiated = false) {
+          clearClock();
+          playing = false;
+          root.classList.remove('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'false');
+          buttons('pause').setAttribute('aria-pressed', 'true');
+          if (userInitiated) status.textContent = `Paused at step ${step} of ${count}`;
+        }
+
+        function finish() {
+          pause(false);
+          root.dataset.frame = 'end';
+          status.textContent = `Complete · step ${count} of ${count}`;
+        }
+
+        function tick() {
+          if (!playing) return;
+          if (step >= count) { finish(); return; }
+          render(step + 1, false);
+          if (step >= count) { finish(); return; }
+          timer = window.setTimeout(tick, hold);
+        }
+
+        function play(fromStart = false, userInitiated = false) {
+          clearClock();
+          if (fromStart || step >= count) render(0, userInitiated);
+          playing = true;
+          root.classList.add('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'true');
+          buttons('pause').setAttribute('aria-pressed', 'false');
+          timer = window.setTimeout(tick, hold);
+        }
+
+        controls.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-motion-action]');
+          if (!button) return;
+          const action = button.dataset.motionAction;
+          if (action === 'play') play(false, true);
+          if (action === 'pause') pause(true);
+          if (action === 'replay') play(true, true);
+          if (action === 'prev') { pause(false); render(step - 1, true); }
+          if (action === 'next') { pause(false); render(step + 1, true); }
+        });
+
+        root.addEventListener('keydown', (event) => {
+          if (event.target.matches('input, textarea, select, a[href]')) return;
+          const keys = { ArrowLeft: step - 1, ArrowRight: step + 1, Home: 0, End: count };
+          if (event.code === 'Space' && !event.target.closest('button')) {
+            event.preventDefault();
+            playing ? pause(true) : play(false, true);
+            return;
+          }
+          if (!event.ctrlKey && !event.metaKey && !event.altKey && event.key.toLowerCase() === 'r') {
+            event.preventDefault();
+            play(true, true);
+            return;
+          }
+          if (!(event.key in keys)) return;
+          event.preventDefault();
+          pause(false);
+          render(keys[event.key], true);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden' && playing) pause(false);
+        });
+        reduce.addEventListener('change', (event) => {
+          if (event.matches && root.dataset.motionState !== 'reduced') {
+            stepBeforeReduce = step;
+            resumeAfterReduce = playing;
+          }
+          pause(false);
+          if (event.matches) {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'reduced';
+            status.textContent = 'Reduced motion · complete static frame · playback controls unavailable';
+          } else if (staticOverride || root.dataset.motionMode === 'none') {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'static';
+            status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+          } else {
+            delete root.dataset.motionState;
+            if (exactStep !== null) {
+              setControlsAvailable(false);
+              render(exactStep, false);
+              root.dataset.frame = 'step';
+              root.dataset.motionState = 'test';
+              status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+            } else {
+              setControlsAvailable(true);
+              render(stepBeforeReduce, false);
+              status.textContent = `Ready · step ${step} of ${count}`;
+              if (resumeAfterReduce && root.dataset.motionMode === 'reveal') {
+                play(false, false);
+              }
+            }
+            resumeAfterReduce = false;
+          }
+        });
+
+        if (staticOverride) {
+          document.documentElement.dataset.motion = 'static';
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = 'static';
+          status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+        } else if (reduce.matches || root.dataset.motionMode === 'none') {
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = reduce.matches ? 'reduced' : 'static';
+          status.textContent = reduce.matches
+            ? 'Reduced motion · complete static frame · playback controls unavailable'
+            : 'Static frame · complete diagram · playback controls unavailable';
+        } else if (exactStep !== null) {
+          document.documentElement.dataset.motion = 'step';
+          pause(false);
+          setControlsAvailable(false);
+          render(exactStep, false);
+          root.dataset.frame = 'step';
+          root.dataset.motionState = 'test';
+          status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+        } else if (root.dataset.motionMode === 'reveal') {
+          setControlsAvailable(true);
+          render(0, false);
+          play(false, false);
+        } else {
+          pause(false);
+          setControlsAvailable(true);
+          render(0, false);
+          status.textContent = `Ready · step 0 of ${count}`;
+        }
+        root.classList.add('motion-ready');
+      });
+    })();
+  </script>
+
+
+</body>
+</html>
