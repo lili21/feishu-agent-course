@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://feishu-agent-course.vercel.app/sitemap.xml
