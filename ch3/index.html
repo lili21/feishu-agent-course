@@ -11,43 +11,39 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a printed book page lying on a white-grey desk. One serif (Kami rules: 400/500 only, no bold, no italic), one ink-blue accent, print-ink semantic colours. Text column 680px; plates (simulator, figures) span the page. Deliberately single-theme: paper is light. */
+/* Layout: book typography on parchment (Kami rules: one serif, 400/500 only, no bold, no italic, one ink-blue accent, warm greys). Reading column 680px; simulator and figures run wider. No page-as-sheet, no shadows. Diagrams follow diagram-design: orthogonal connectors, masked labels, 4px grid, step-mode motion. Single light theme by choice. */
 :root{
   color-scheme:light;
-  --desk:#E6E5E1; --paper:#FBFBF9; --ivory:#F4F3EF; --sand:#ECEBE6;
+  --parchment:#F5F4ED; --ivory:#FAF9F5; --code:#F0EEE6; --sand:#E8E6DC;
   --ink:#141413; --ink2:#3D3D3A; --olive:#504E49; --stone:#6B6A64;
-  --rule:#E4E2DC; --rule2:#D6D4CD;
+  --border:#E8E6DC; --border2:#D9D6CA;
   --brand:#1B365D; --brand-tint:#EEF2F7; --tag:#E4ECF5;
-  --go:#2E6A4A; --go-tint:#E7EFE9;
-  --ask:#8A5A12; --ask-tint:#F4EDDE;
-  --stop:#9A2E2A; --stop-tint:#F5E6E4;
+  --go:#2E6A4A; --go-tint:#E4ECE1;
+  --ask:#8A5A12; --ask-tint:#F2E8D3;
+  --stop:#9A2E2A; --stop-tint:#F2E0DB;
+  --hl-kw:#1B365D; --hl-type:#2E6A4A; --hl-str:#9A5B13; --hl-com:#8E8A7E; --hl-num:#7A3E6B; --hl-fn:#A0442A;
   --serif:"Noto Serif SC","Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong",Georgia,serif;
   --mono:"JetBrains Mono","SF Mono",Consolas,"Noto Serif SC","Source Han Serif SC",monospace;
-  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .30 0 0 0 0 .26 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --motion-fast:160ms; --motion-step:480ms; --motion-hold:1200ms; --motion-total:6000ms; --motion-ease:cubic-bezier(.2,.8,.2,1);
 }
 *{box-sizing:border-box}
-html{background:var(--desk)}
-body{background:var(--desk);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55;letter-spacing:.02em;font-weight:400}
+html,body{background:var(--parchment)}
+body{color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55;letter-spacing:.02em;font-weight:400}
 button,input,select{font-family:var(--serif);letter-spacing:.02em}
 h1,h2,h3{font-weight:500;text-wrap:balance;margin:0}
 p{margin:0}
 a{color:var(--brand)}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
-/* desk + sheet */
-.desk{padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.sheet{position:relative;max-width:1080px;margin:0 auto;background-color:var(--paper);background-image:var(--grain);
-  box-shadow:3px 3px 0 -1px var(--paper),3px 3px 0 0 var(--rule2),6px 6px 0 -1px var(--paper),6px 6px 0 0 var(--rule2),0 26px 50px -28px rgba(40,36,28,.45);
-  padding:28px 72px 56px;display:flex;flex-direction:column;gap:56px}
-.sheet::before{content:"";position:absolute;inset:0 auto 0 0;width:46px;background:linear-gradient(90deg,rgba(60,55,45,.07),rgba(60,55,45,0));pointer-events:none}
-@media (max-width:720px){.sheet{padding:20px 20px 40px;gap:44px;box-shadow:2px 2px 0 -1px var(--paper),2px 2px 0 0 var(--rule2),0 18px 36px -24px rgba(40,36,28,.4)}.sheet::before{width:22px}}
-.runhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--stone);letter-spacing:.12em;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.page{max-width:1040px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:60px}
+.runhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--stone);letter-spacing:.12em;border-bottom:1px solid var(--border);padding-bottom:10px}
 .folio{display:flex;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--stone);letter-spacing:.1em}
 .col{max-width:680px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+@media (min-width:960px){.col > figure.wide{width:calc(100% + 120px);margin-left:-60px}}
 
 /* chapter opener */
-.opener{max-width:780px;width:100%;margin:12px auto 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 28px;align-items:end}
-.ch-num{font-size:132px;line-height:.82;color:var(--rule2);font-weight:400;letter-spacing:0}
+.opener{max-width:780px;width:100%;margin:16px auto 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 28px;align-items:end}
+.ch-num{font-size:132px;line-height:.82;color:var(--border2);font-weight:400;letter-spacing:0}
 .ch-label{font-size:13px;letter-spacing:.3em;color:var(--brand);display:block;margin-bottom:8px}
 h1{font-size:clamp(34px,6vw,50px);line-height:1.12;letter-spacing:.02em}
 .opener .lede{grid-column:1 / -1;font-size:18.5px;line-height:1.6;color:var(--ink2);max-width:40em;margin-top:18px}
@@ -55,7 +51,6 @@ h1{font-size:clamp(34px,6vw,50px);line-height:1.12;letter-spacing:.02em}
 .keypoints span:first-child{font-size:12.5px;letter-spacing:.2em;color:var(--stone);margin-bottom:4px}
 @media (max-width:560px){.ch-num{font-size:84px}.opener{column-gap:16px}}
 
-/* section heads */
 .sec-no{font-family:var(--mono);font-size:14px;color:var(--brand);letter-spacing:.06em}
 h2{font-size:clamp(23px,3.2vw,27px);line-height:1.3}
 h3{font-size:17px;line-height:1.45}
@@ -64,68 +59,67 @@ h3{font-size:17px;line-height:1.45}
 .muted{color:var(--stone)}
 .figlabel{font-size:13.5px;color:var(--olive)}
 .figlabel b{font-weight:500;color:var(--ink);margin-right:8px}
-code.i{font-family:var(--mono);font-size:.86em;background:var(--ivory);padding:1px 5px;border-radius:3px}
 
-/* simulator plate */
+/* simulator */
 .plate{display:flex;flex-direction:column;gap:10px}
 .hint{font-size:15px;color:var(--olive);max-width:46em}
 .hint span{color:var(--brand)}
-.sim{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);border:1px solid var(--rule2);border-radius:6px;background:var(--paper);overflow:hidden}
+.sim{display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);border:1px solid var(--border2);border-radius:6px;background:var(--ivory);overflow:hidden}
 @media (max-width:900px){.sim{grid-template-columns:minmax(0,1fr)}}
-.chat{display:flex;flex-direction:column;border-right:1px solid var(--rule2);min-width:0}
-@media (max-width:900px){.chat{border-right:0;border-bottom:1px solid var(--rule2)}}
-.chat-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:11px 16px;border-bottom:1px solid var(--rule)}
+.chat{display:flex;flex-direction:column;border-right:1px solid var(--border2);min-width:0}
+@media (max-width:900px){.chat{border-right:0;border-bottom:1px solid var(--border2)}}
+.chat-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border)}
 .chat-head b{font-size:15px;font-weight:500}
 .chat-head span{font-size:12.5px;color:var(--stone)}
-.feed{height:380px;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;background:var(--ivory)}
+.feed{height:380px;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;background:var(--code)}
 .sys{font-size:12.5px;color:var(--stone);text-align:center}
 .msg{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start}
 .av{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;font-size:14px;background:var(--sand);color:var(--ink2)}
-.msg.me-bot .av{background:var(--brand);color:var(--paper)}
+.msg.me-bot .av{background:var(--brand);color:var(--ivory)}
 .who{font-size:12.5px;color:var(--stone);line-height:1.4}
-.bubble{display:inline-block;background:var(--paper);border:1px solid var(--rule2);border-radius:2px 8px 8px 8px;padding:5px 10px;font-size:15px;line-height:1.55;max-width:100%;overflow-wrap:anywhere}
+.bubble{display:inline-block;background:var(--ivory);border:1px solid var(--border2);border-radius:2px 8px 8px 8px;padding:5px 10px;font-size:15px;line-height:1.55;max-width:100%;overflow-wrap:anywhere}
 .msg.me-bot .bubble{background:var(--brand-tint);border-color:#C9D5E4}
 .verdict{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--stone)}
-.reply-btn{margin-top:6px;display:inline-block;font-size:13px;padding:3px 12px;border-radius:999px;border:1px solid var(--brand);background:var(--paper);color:var(--brand);cursor:pointer}
+.reply-btn{margin-top:6px;display:inline-block;font-size:13px;padding:3px 12px;border-radius:999px;border:1px solid var(--brand);background:var(--ivory);color:var(--brand);cursor:pointer}
 .reply-btn:disabled{opacity:.45;cursor:default}
 .presets{padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px}
 .presets button{font-size:13px;padding:3px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer;text-align:left;line-height:1.55}
 .presets button:hover{background:var(--tag);color:var(--brand)}
 .presets .muted{color:var(--stone)}
 .composer{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;padding:10px 16px 14px}
-.composer select,.composer input{font-size:15px;border:1px solid var(--rule2);border-radius:4px;background:var(--paper);color:var(--ink);padding:6px 8px;min-width:0}
-.send{border:0;border-radius:4px;background:var(--brand);color:var(--paper);padding:6px 16px;cursor:pointer;font-size:15px}
+.composer select,.composer input{font-size:15px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);padding:6px 8px;min-width:0}
+.send{border:0;border-radius:4px;background:var(--brand);color:var(--ivory);padding:6px 16px;cursor:pointer;font-size:15px}
 @media (max-width:420px){.composer{grid-template-columns:minmax(0,1fr) auto}.composer select{grid-column:1 / -1}}
-details.cfg{border-top:1px solid var(--rule);padding:10px 16px 14px}
+details.cfg{border-top:1px solid var(--border);padding:10px 16px 14px}
 details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
 .cfg-body{display:flex;flex-direction:column;gap:12px;margin-top:10px;font-size:14px}
 .cfg-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
 .cfg-label{font-size:12.5px;color:var(--stone);width:100%;letter-spacing:.06em}
 .cfg-body label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .cfg-body input[type=checkbox]{accent-color:var(--brand)}
-.cfg-body select{font-size:13.5px;border:1px solid var(--rule2);border-radius:4px;background:var(--paper);color:var(--ink);padding:2px 6px}
+.cfg-body select{font-size:13.5px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);padding:2px 6px}
 .rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
 .rules label{flex-direction:column;align-items:flex-start;gap:2px}
 
 .trace{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .trace-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:center}
 .trace-top .now{font-size:15px;min-width:0;overflow-wrap:anywhere}
+.trace-meta{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
 .stats{font-family:var(--mono);font-size:12px;color:var(--stone);font-variant-numeric:tabular-nums}
 .stats b{color:var(--ink);font-weight:500}
 .speed{display:inline-flex;align-items:center;gap:2px;font-size:12.5px;color:var(--stone)}
 .speed button{border:0;background:transparent;color:var(--stone);padding:2px 8px;border-radius:999px;cursor:pointer;font-size:12.5px}
 .speed button[aria-pressed="true"]{background:var(--tag);color:var(--brand)}
-.trace-meta{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
 
-.flow-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--ivory);padding:6px 8px}
-#flow{display:block;width:100%;height:auto;min-width:540px;color:var(--stone)}
-.fl-dash{stroke-dasharray:4 4}
-.fl-node rect{fill:var(--paper);stroke:var(--rule2);stroke-width:1.2;transition:stroke .25s ease,fill .25s ease,stroke-width .25s ease}
+.flow-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px;background:var(--parchment);padding:6px 8px}
+#flow{display:block;width:100%;height:auto;min-width:560px;color:var(--stone)}
+.fl-dash{stroke-dasharray:5 4}
+.fl-node rect{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2;transition:stroke .25s ease,fill .25s ease,stroke-width .25s ease}
 .fl-node.model rect{fill:var(--brand-tint);stroke:var(--brand)}
 .fl-node.hit-pass rect{stroke:var(--go);stroke-width:2.6}
 .fl-node.hit-fail rect{stroke:var(--stop);stroke-width:2.6;fill:var(--stop-tint)}
 .fl-node.hit-think rect{stroke-width:3}
-.fl-bin rect{fill:var(--paper);stroke:var(--rule2);stroke-width:1.2;transition:stroke-width .25s ease}
+.fl-bin rect{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2;transition:stroke-width .25s ease}
 .fl-bin text{font-size:12.5px;font-family:var(--serif);font-weight:500}
 .fl-bin .fl-n{font-family:var(--mono)}
 .b-drop rect,.b-ignore rect{fill:var(--sand)} .b-drop text,.b-ignore text{fill:var(--olive)}
@@ -134,7 +128,7 @@ details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
 .b-ask rect{fill:var(--ask-tint);stroke:var(--ask)} .b-ask text{fill:var(--ask)}
 .b-accept rect{fill:var(--go-tint);stroke:var(--go)} .b-accept text{fill:var(--go)}
 .fl-bin.lit rect{stroke-width:3.2}
-.tok-r{fill:var(--paper);stroke:var(--brand);stroke-width:1.6}
+.tok-r{fill:var(--ivory);stroke:var(--brand);stroke-width:1.6}
 .tok-t{fill:var(--ink);font-size:12px;font-family:var(--serif)}
 #tok{transition:opacity .35s ease}
 #tok.gone{opacity:0}
@@ -147,11 +141,11 @@ details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
 .cost-pop.show{opacity:1}
 
 .stages{display:flex;flex-direction:column;gap:8px}
-.stage{border:1px solid var(--rule2);border-radius:4px;padding:9px 14px;background:var(--paper);transition:opacity .35s ease}
+.stage{border:1px solid var(--border2);border-radius:4px;padding:9px 14px;background:var(--ivory);transition:opacity .35s ease}
 .stage.pending{opacity:.3}
 .stage.skip{opacity:.5;border-style:dashed}
 .st-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.st-n{font-family:var(--mono);font-size:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--rule2);color:var(--stone)}
+.st-n{font-family:var(--mono);font-size:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border2);color:var(--stone)}
 .st-name{font-weight:500;font-size:15px}
 .cost{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:999px;background:var(--sand);color:var(--olive)}
 .cost.model{background:var(--tag);color:var(--brand)}
@@ -167,7 +161,7 @@ details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
 .checks li.warn::before{content:"!";color:var(--ask)}
 .checks .note{color:var(--stone)}
 
-.decision{border-radius:4px;padding:11px 14px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--rule2);transition:opacity .35s ease}
+.decision{border-radius:4px;padding:11px 14px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--border2);transition:opacity .35s ease}
 .decision.pending{opacity:.3}
 .d-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .pill{font-size:12.5px;font-weight:500;padding:1px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
@@ -181,24 +175,35 @@ details.cfg summary{cursor:pointer;font-size:14.5px;color:var(--ink2)}
 .decision .say{font-size:14.5px;color:var(--ink)}
 .decision .say span{color:var(--stone)}
 
-details.peek{border-top:1px dashed var(--rule2);padding-top:10px}
+details.peek{border-top:1px dashed var(--border2);padding-top:10px}
 details.peek summary{cursor:pointer;font-size:14px;color:var(--olive)}
 .peek-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
 @media (max-width:640px){.peek-grid{grid-template-columns:minmax(0,1fr)}}
 .peek-grid .lbl{font-size:12.5px;color:var(--stone);margin-bottom:4px}
-pre.code{margin:0;background:var(--ivory);color:var(--ink);border:1px solid var(--rule);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12.8px;line-height:1.6;letter-spacing:0;overflow-x:auto;white-space:pre}
-pre.code .c{color:var(--stone)}
-pre.code .s{color:var(--brand)}
 
-/* figures + svg */
-figure{margin:0;display:flex;flex-direction:column;gap:8px}
-.fig{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 0;overflow-x:auto}
-.fig svg{display:block;width:100%;height:auto;min-width:600px;color:var(--stone)}
+/* code + syntax highlighting */
+pre.code{margin:0;background:var(--code);color:var(--ink);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12.8px;line-height:1.65;letter-spacing:0;overflow-x:auto;white-space:pre;tab-size:2}
+.tk-k{color:var(--hl-kw);font-weight:500}
+.tk-t{color:var(--hl-type)}
+.tk-s{color:var(--hl-str)}
+.tk-c{color:var(--hl-com)}
+.tk-n{color:var(--hl-num)}
+.tk-f{color:var(--hl-fn)}
+.tk-p{color:var(--hl-kw)}
+.code-wrap{position:relative}
+.code-wrap pre.code{padding-top:40px}
+.code-bar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px 0 14px;font-family:var(--mono);font-size:12px;color:var(--stone)}
+.copy{font-size:12.5px;padding:2px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer;font-family:var(--serif)}
+
+/* figures */
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.diagram-container{width:100%;overflow-x:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0}
+.diagram-container svg{display:block;width:100%;height:auto;min-width:760px;color:var(--stone)}
 figcaption{font-size:14px;color:var(--olive);line-height:1.55}
 figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
-.sv-box{fill:var(--paper);stroke:var(--rule2);stroke-width:1.2}
+.sv-box{fill:var(--ivory);stroke:var(--border2);stroke-width:1.2}
 .sv-bot{fill:var(--brand-tint);stroke:var(--brand);stroke-width:1.2}
-.sv-soft{fill:var(--ivory);stroke:var(--rule2);stroke-width:1}
+.sv-soft{fill:var(--sand);stroke:var(--border2);stroke-width:1}
 .sv-t{fill:var(--ink);font-size:14px;font-weight:500;font-family:var(--serif)}
 .sv-s{fill:var(--olive);font-size:12.5px;font-family:var(--serif)}
 .sv-m{fill:var(--stone);font-size:11.5px;font-family:var(--mono)}
@@ -207,9 +212,41 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
 .sv-ln-stop{stroke:var(--stop);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
 .sv-mk{fill:currentColor}
 .sv-dot{fill:var(--brand)}
-.sv-dot-stop{fill:var(--stop)}
-.sv-axis{stroke:var(--rule2);stroke-width:1}
-.sv-play{stroke:var(--brand);stroke-width:1.2;stroke-dasharray:3 3}
+.sv-axis{stroke:var(--border2);stroke-width:1}
+.mask-p{fill:var(--parchment)}
+
+/* diagram-design motion (step mode) */
+.motion-ready [data-motion-item]{opacity:.12;transform:translateY(8px);transform-box:fill-box;transform-origin:center;transition:opacity var(--motion-step) var(--motion-ease),transform var(--motion-step) var(--motion-ease)}
+.motion-ready [data-motion-item].is-visible,.motion-ready[data-frame="end"] [data-motion-item],.motion-ready[data-frame="static"] [data-motion-item]{opacity:1;transform:none}
+.draw-path{fill:none;stroke:var(--brand);stroke-width:3;stroke-dasharray:1;stroke-dashoffset:1;pointer-events:none}
+.motion-ready .draw-path.is-visible{animation:draw-path var(--motion-step) linear forwards}
+@keyframes draw-path{to{stroke-dashoffset:0}}
+[data-motion-controls]{display:none;align-items:center;flex-wrap:wrap;gap:8px}
+.motion-ready [data-motion-controls]{display:flex}
+[data-motion-controls][hidden]{display:none !important}
+[data-motion-controls] button{min-width:44px;min-height:44px;padding:8px 14px;border:1px solid var(--border2);border-radius:4px;background:var(--ivory);color:var(--ink);font-size:14px;cursor:pointer}
+[data-motion-controls] button:hover{border-color:var(--brand);color:var(--brand)}
+[data-motion-controls] button[data-motion-action="play"]{background:var(--brand);border-color:var(--brand);color:var(--ivory)}
+[data-motion-controls] button:disabled{cursor:not-allowed;opacity:.45}
+.keyboard-help{font-size:12.5px;color:var(--stone)}
+[data-motion-status-visible]{margin-left:auto;font-size:13px;color:var(--olive);font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html[data-motion="static"] [data-motion-controls],html[data-motion="static"] [data-motion-decorative]{display:none !important}
+html[data-motion="static"] [data-motion-item]{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+html[data-motion="step"] [data-motion-controls],html[data-motion="step"] [data-motion-decorative]{display:none !important}
+html[data-motion="step"] [data-motion-item]{animation:none !important;transition:none !important}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.001ms !important}
+  [data-motion-item]{opacity:1 !important;transform:none !important}
+  [data-motion-decorative]{display:none !important}
+  [data-motion-controls]{display:none !important}
+}
+@media print{
+  .diagram-container{overflow-x:visible}
+  .diagram-container svg{min-width:0}
+  [data-motion-controls],[data-motion-decorative]{display:none !important}
+  [data-motion-item]{opacity:1 !important;transform:none !important;animation:none !important;transition:none !important}
+}
 
 /* calculator */
 .calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;background:var(--ivory);border-radius:4px;padding:16px 20px}
@@ -219,30 +256,23 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
 .field output{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .field input{width:100%;accent-color:var(--brand)}
 .calc-out{display:flex;flex-direction:column;gap:8px}
-.meter{display:flex;height:18px;border-radius:3px;overflow:hidden;background:var(--rule2)}
+.meter{display:flex;height:18px;border-radius:3px;overflow:hidden;background:var(--sand)}
 .meter .m-model{background:var(--brand);transition:width .3s ease}
 .calc-out .big{font-family:var(--mono);font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2}
 .calc-out .row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--olive)}
 .calc-out .row span:first-child{color:var(--brand)}
 
-/* table */
 .tbl{overflow-x:auto;border-top:1px solid var(--ink2);border-bottom:1px solid var(--ink2)}
 .tbl table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
-.tbl th,.tbl td{padding:9px 12px;border-bottom:1px solid var(--rule);text-align:left;font-weight:400}
-.tbl thead th{font-size:13px;color:var(--olive);letter-spacing:.06em;border-bottom:1px solid var(--rule2)}
+.tbl th,.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:400}
+.tbl thead th{font-size:13px;color:var(--olive);letter-spacing:.06em;border-bottom:1px solid var(--border2)}
 .tbl tr:last-child td,.tbl tr:last-child th{border-bottom:0}
-.tbl .pill{font-size:12.5px}
 
-.code-wrap{position:relative}
-.code-wrap pre.code{padding-top:38px}
-.copy{position:absolute;top:8px;right:8px;font-size:12.5px;padding:2px 10px;border-radius:999px;border:0;background:var(--sand);color:var(--ink2);cursor:pointer}
-
-/* quiz */
 .quiz{display:flex;flex-direction:column;gap:22px}
 .q{display:flex;flex-direction:column;gap:10px}
 .q h3{font-size:16.5px}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
-.opts button{font-size:14.5px;padding:4px 14px;border-radius:999px;border:1px solid var(--rule2);background:var(--paper);color:var(--ink);cursor:pointer}
+.opts button{font-size:14.5px;padding:4px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--ivory);color:var(--ink);cursor:pointer}
 .opts button:hover{border-color:var(--brand)}
 .opts button.right{border-color:var(--go);background:var(--go-tint);color:var(--go)}
 .opts button.wrong{border-color:var(--stop);background:var(--stop-tint);color:var(--stop)}
@@ -250,14 +280,13 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
 
 .next{display:flex;flex-direction:column;gap:4px;background:var(--ivory);border-radius:4px;padding:16px 20px}
 .next .ch{font-size:12.5px;letter-spacing:.2em;color:var(--brand)}
-.notes{font-size:13.5px;color:var(--stone);border-top:1px solid var(--rule);padding-top:14px;line-height:1.6}
+.notes{font-size:13.5px;color:var(--stone);border-top:1px solid var(--border);padding-top:14px;line-height:1.6}
 @media (prefers-reduced-motion:reduce){.stage,.decision,.meter .m-model,#tok,.fl-node rect{transition:none}}
 </style>
 </head>
 <body>
 
-<div class="desk">
-<article class="sheet">
+<div class="page">
 
 <div class="runhead"><span>从 0 到 1 做飞书数字员工</span><span>第三章　先过滤，再判断</span></div>
 
@@ -311,36 +340,43 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
         </span>
       </div>
       <div class="flow-wrap">
-        <svg id="flow" viewBox="0 0 760 232" role="img" aria-label="数据流：每条消息依次经过过滤、授权、评估和决定，落入开工、先问人、只记录、忽略四个结果之一；被过滤或无权限的消息在前两步直接落下；线程追问直达任务。">
+        <svg id="flow" viewBox="0 0 760 248" role="img" aria-labelledby="flow-title flow-desc">
+          <title id="flow-title">一条群消息的数据流</title>
+          <desc id="flow-desc">消息依次经过过滤、授权、评估、决定四个关卡。过滤不通过落入丢弃，无权限落入拒绝；通过四关后按决定落入开工、先问人、只记录或忽略。对小橙提议的线程回复沿顶部虚线直达开工。</desc>
           <defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="sv-mk"/></marker></defs>
-          <path d="M56,70 V18 H600 C620,18 620,42 636,42" class="sv-ln fl-dash"/>
-          <text x="330" y="13" text-anchor="middle" class="sv-m">线程追问：直达任务，跳过判断</text>
-          <line x1="92" y1="90" x2="488" y2="90" class="sv-ln"/>
-          <line x1="170" y1="112" x2="170" y2="176" class="sv-ln" marker-end="url(#fa)"/>
-          <line x1="290" y1="112" x2="290" y2="176" class="sv-ln" marker-end="url(#fa)"/>
-          <path d="M572,90 C605,90 605,42 638,42" class="sv-ln" marker-end="url(#fa)"/>
-          <path d="M572,90 H638" class="sv-ln" marker-end="url(#fa)"/>
-          <path d="M572,90 C605,90 605,138 638,138" class="sv-ln" marker-end="url(#fa)"/>
-          <path d="M572,90 C605,90 605,186 638,186" class="sv-ln" marker-end="url(#fa)"/>
-          <text x="184" y="148" class="sv-m">挡下</text>
-          <text x="304" y="148" class="sv-m">无权限</text>
+          <!-- connectors first -->
+          <path d="M56,84 V24 A8,8 0 0 1 64,16 H686 A8,8 0 0 1 694,24 V30" class="sv-ln fl-dash" marker-end="url(#fa)"/>
+          <rect x="268" y="24" width="124" height="18" class="mask-p"/>
+          <text x="330" y="37" text-anchor="middle" class="sv-s">线程追问：直达任务</text>
+          <line x1="92" y1="106" x2="126" y2="106" class="sv-ln" marker-end="url(#fa)"/>
+          <line x1="212" y1="106" x2="246" y2="106" class="sv-ln" marker-end="url(#fa)"/>
+          <line x1="332" y1="106" x2="366" y2="106" class="sv-ln" marker-end="url(#fa)"/>
+          <line x1="452" y1="106" x2="486" y2="106" class="sv-ln" marker-end="url(#fa)"/>
+          <line x1="170" y1="128" x2="170" y2="190" class="sv-ln" marker-end="url(#fa)"/>
+          <line x1="290" y1="128" x2="290" y2="190" class="sv-ln" marker-end="url(#fa)"/>
+          <rect x="178" y="150" width="32" height="18" class="mask-p"/><text x="180" y="164" class="sv-s">挡下</text>
+          <rect x="298" y="150" width="44" height="18" class="mask-p"/><text x="300" y="164" class="sv-s">无权限</text>
+          <path d="M572,88 H588 A8,8 0 0 0 596,80 V60 A8,8 0 0 1 604,52 H638" class="sv-ln" marker-end="url(#fa)"/>
+          <path d="M572,100 H638" class="sv-ln" marker-end="url(#fa)"/>
+          <path d="M572,112 H588 A8,8 0 0 1 596,120 V140 A8,8 0 0 0 604,148 H638" class="sv-ln" marker-end="url(#fa)"/>
+          <path d="M572,124 H576 A8,8 0 0 1 584,132 V188 A8,8 0 0 0 592,196 H638" class="sv-ln" marker-end="url(#fa)"/>
 
-          <rect x="20" y="70" width="72" height="40" rx="4" class="sv-box"/>
-          <text x="56" y="95" text-anchor="middle" class="sv-t">群消息</text>
-          <g class="fl-node" id="n1"><rect x="128" y="68" width="84" height="44" rx="4"/><text x="170" y="87" text-anchor="middle" class="sv-t">1 过滤</text><text x="170" y="104" text-anchor="middle" class="sv-m">0 token</text></g>
-          <g class="fl-node" id="n2"><rect x="248" y="68" width="84" height="44" rx="4"/><text x="290" y="87" text-anchor="middle" class="sv-t">2 授权</text><text x="290" y="104" text-anchor="middle" class="sv-m">0 token</text></g>
-          <g class="fl-node model" id="n3"><rect x="368" y="68" width="84" height="44" rx="4"/><text x="410" y="87" text-anchor="middle" class="sv-t">3 评估</text><text x="410" y="104" text-anchor="middle" class="sv-m">模型</text></g>
-          <g class="fl-node" id="n4"><rect x="488" y="68" width="84" height="44" rx="4"/><text x="530" y="87" text-anchor="middle" class="sv-t">4 决定</text><text x="530" y="104" text-anchor="middle" class="sv-m">群规则</text></g>
-          <text id="cost-pop" x="410" y="60" text-anchor="middle" class="cost-pop">−600 token</text>
+          <rect x="20" y="84" width="72" height="44" rx="4" class="sv-box"/>
+          <text x="56" y="111" text-anchor="middle" class="sv-t">群消息</text>
+          <g class="fl-node" id="n1"><rect x="128" y="84" width="84" height="44" rx="4"/><text x="170" y="103" text-anchor="middle" class="sv-t">1 过滤</text><text x="170" y="120" text-anchor="middle" class="sv-m">0 token</text></g>
+          <g class="fl-node" id="n2"><rect x="248" y="84" width="84" height="44" rx="4"/><text x="290" y="103" text-anchor="middle" class="sv-t">2 授权</text><text x="290" y="120" text-anchor="middle" class="sv-m">0 token</text></g>
+          <g class="fl-node model" id="n3"><rect x="368" y="84" width="84" height="44" rx="4"/><text x="410" y="103" text-anchor="middle" class="sv-t">3 评估</text><text x="410" y="120" text-anchor="middle" class="sv-s">模型</text></g>
+          <g class="fl-node" id="n4"><rect x="488" y="84" width="84" height="44" rx="4"/><text x="530" y="103" text-anchor="middle" class="sv-t">4 决定</text><text x="530" y="120" text-anchor="middle" class="sv-s">群规则</text></g>
+          <text id="cost-pop" x="410" y="76" text-anchor="middle" class="cost-pop">−600 token</text>
 
-          <g class="fl-bin b-drop" id="bin-drop"><rect x="128" y="178" width="84" height="40" rx="4"/><text x="170" y="203" text-anchor="middle">丢弃 <tspan class="fl-n" id="c-drop">0</tspan></text></g>
-          <g class="fl-bin b-stop" id="bin-stop"><rect x="248" y="178" width="84" height="40" rx="4"/><text x="290" y="203" text-anchor="middle">拒绝 <tspan class="fl-n" id="c-stop">0</tspan></text></g>
-          <g class="fl-bin b-accept" id="bin-accept"><rect x="640" y="24" width="108" height="36" rx="4"/><text x="694" y="47" text-anchor="middle">开工 <tspan class="fl-n" id="c-accept">0</tspan></text></g>
-          <g class="fl-bin b-ask" id="bin-ask"><rect x="640" y="72" width="108" height="36" rx="4"/><text x="694" y="95" text-anchor="middle">先问人 <tspan class="fl-n" id="c-ask">0</tspan></text></g>
-          <g class="fl-bin b-observe" id="bin-observe"><rect x="640" y="120" width="108" height="36" rx="4"/><text x="694" y="143" text-anchor="middle">只记录 <tspan class="fl-n" id="c-observe">0</tspan></text></g>
-          <g class="fl-bin b-ignore" id="bin-ignore"><rect x="640" y="168" width="108" height="36" rx="4"/><text x="694" y="191" text-anchor="middle">忽略 <tspan class="fl-n" id="c-ignore">0</tspan></text></g>
+          <g class="fl-bin b-drop" id="bin-drop"><rect x="128" y="192" width="84" height="40" rx="4"/><text x="170" y="217" text-anchor="middle">丢弃 <tspan class="fl-n" id="c-drop">0</tspan></text></g>
+          <g class="fl-bin b-stop" id="bin-stop"><rect x="248" y="192" width="84" height="40" rx="4"/><text x="290" y="217" text-anchor="middle">拒绝 <tspan class="fl-n" id="c-stop">0</tspan></text></g>
+          <g class="fl-bin b-accept" id="bin-accept"><rect x="640" y="32" width="108" height="40" rx="4"/><text x="694" y="57" text-anchor="middle">开工 <tspan class="fl-n" id="c-accept">0</tspan></text></g>
+          <g class="fl-bin b-ask" id="bin-ask"><rect x="640" y="80" width="108" height="40" rx="4"/><text x="694" y="105" text-anchor="middle">先问人 <tspan class="fl-n" id="c-ask">0</tspan></text></g>
+          <g class="fl-bin b-observe" id="bin-observe"><rect x="640" y="128" width="108" height="40" rx="4"/><text x="694" y="153" text-anchor="middle">只记录 <tspan class="fl-n" id="c-observe">0</tspan></text></g>
+          <g class="fl-bin b-ignore" id="bin-ignore"><rect x="640" y="176" width="108" height="40" rx="4"/><text x="694" y="201" text-anchor="middle">忽略 <tspan class="fl-n" id="c-ignore">0</tspan></text></g>
 
-          <g id="tok" class="gone" transform="translate(56,90)"><rect x="-36" y="-12" width="72" height="24" rx="12" class="tok-r"/><text y="4" text-anchor="middle" class="tok-t" id="tok-t"></text></g>
+          <g id="tok" class="gone" transform="translate(56,106)" aria-hidden="true"><rect x="-36" y="-12" width="72" height="24" rx="12" class="tok-r"/><text y="4" text-anchor="middle" class="tok-t" id="tok-t"></text></g>
         </svg>
       </div>
       <div class="stages" id="stages"></div>
@@ -384,44 +420,65 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
   <span class="sec-no">3.2</span>
   <h2>权限归代码，价值归模型</h2>
   <p class="lead">判断拆成两层。授权（Gate）只看飞书事件里系统给出的发送者 ID，去查授权名单。评估（Assessment）才读消息文字，判断是不是任务、归谁、多急。</p>
-  <figure>
-    <div class="fig">
-      <svg class="anim" data-rest="0" viewBox="0 0 760 224" role="img" aria-label="发送者 ID 只进入授权层，消息文字只进入评估层；消息文字到授权层的连线被禁止。两层都通过才会得出决定。">
+  <figure class="wide" data-motion-root data-motion-mode="step" data-step-count="4" data-step-current="4" data-frame="static" data-static-frame="complete">
+    <div class="diagram-container">
+      <svg viewBox="0 0 760 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="f32-title f32-desc">
+        <title id="f32-title">授权与评估的两层分工</title>
+        <desc id="f32-desc">发送者 ID 只进入授权层查名单；消息文字只进入评估层理解内容，消息文字通往授权层的路被禁止；两层结果合成最终决定。</desc>
         <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="sv-mk"/></marker></defs>
-        <rect x="10" y="28" width="180" height="56" rx="4" class="sv-box"/>
-        <text x="24" y="52" class="sv-t">发送者 ID</text><text x="24" y="71" class="sv-s">飞书事件自带，伪造不了</text>
-        <rect x="10" y="140" width="180" height="56" rx="4" class="sv-box"/>
-        <text x="24" y="164" class="sv-t">消息文字</text><text x="24" y="183" class="sv-s">任何人都能随便写</text>
 
-        <rect x="290" y="20" width="190" height="72" rx="4" class="sv-soft"/>
-        <text x="304" y="46" class="sv-t">授权 Gate · 代码</text><text x="304" y="66" class="sv-s">查名单：能不能发起、</text><text x="304" y="82" class="sv-s">最多到哪一档</text>
-        <rect x="290" y="132" width="190" height="72" rx="4" class="sv-bot"/>
-        <text x="304" y="158" class="sv-t">评估 Assessment · 模型</text><text x="304" y="178" class="sv-s">是不是任务、归哪个仓库、</text><text x="304" y="194" class="sv-s">多急、有几成把握</text>
+        <g data-motion-item data-step="1" aria-label="第 1 步：发送者 ID 进入授权层，查名单">
+          <path d="M192,56 H286" class="sv-ln" marker-end="url(#a1)"/>
+          <rect x="214" y="32" width="52" height="18" class="mask-p"/>
+          <text x="240" y="46" text-anchor="middle" class="sv-s">查名单</text>
+        </g>
+        <g data-motion-item data-step="2" aria-label="第 2 步：消息文字进入评估层，理解内容">
+          <path d="M192,172 H286" class="sv-ln" marker-end="url(#a1)"/>
+          <rect x="210" y="180" width="60" height="18" class="mask-p"/>
+          <text x="240" y="194" text-anchor="middle" class="sv-s">理解内容</text>
+        </g>
+        <g data-motion-item data-step="3" aria-label="第 3 步：消息文字想直接影响授权层，这条路被禁止">
+          <path d="M192,156 H228 A8,8 0 0 0 236,148 V88 A8,8 0 0 1 244,80 H286" class="sv-ln-stop"/>
+          <circle cx="236" cy="118" r="10" class="sv-box"/>
+          <text x="236" y="122.5" text-anchor="middle" class="sv-stop">✗</text>
+          <rect x="250" y="110" width="44" height="18" class="mask-p"/>
+          <text x="252" y="123" class="sv-stop">不参与</text>
+        </g>
+        <g data-motion-item data-step="4" aria-label="第 4 步：两层都通过，合成最终决定">
+          <path d="M480,56 H520 A8,8 0 0 1 528,64 V96 A8,8 0 0 0 536,104 H610" class="sv-ln" marker-end="url(#a1)"/>
+          <path d="M480,172 H520 A8,8 0 0 0 528,164 V136 A8,8 0 0 1 536,128 H610" class="sv-ln" marker-end="url(#a1)"/>
+          <rect x="536" y="70" width="60" height="18" class="mask-p"/>
+          <text x="538" y="84" class="sv-s">档位上限</text>
+          <rect x="536" y="142" width="64" height="18" class="mask-p"/>
+          <text x="538" y="156" class="sv-s">类别和把握</text>
+          <rect x="612" y="80" width="136" height="72" rx="4" class="sv-box"/>
+          <text x="626" y="106" class="sv-t">决定</text><text x="626" y="126" class="sv-s">两层都通过</text><text x="626" y="142" class="sv-s">才查群规则</text>
+        </g>
 
-        <line x1="190" y1="56" x2="288" y2="56" class="sv-ln" marker-end="url(#a1)"/>
-        <text x="239" y="48" text-anchor="middle" class="sv-s">查名单</text>
-        <line x1="190" y1="168" x2="288" y2="168" class="sv-ln" marker-end="url(#a1)"/>
-        <text x="239" y="160" text-anchor="middle" class="sv-s">理解内容</text>
-        <line x1="190" y1="150" x2="288" y2="84" class="sv-ln-stop"/>
-        <circle cx="239" cy="117" r="10" class="sv-box"/>
-        <text x="239" y="121.5" text-anchor="middle" class="sv-stop">✗</text>
-        <text x="254" y="121" class="sv-stop">不参与</text>
+        <rect x="16" y="28" width="176" height="56" rx="4" class="sv-box"/>
+        <text x="30" y="52" class="sv-t">发送者 ID</text><text x="30" y="72" class="sv-s">飞书事件自带，伪造不了</text>
+        <rect x="16" y="144" width="176" height="56" rx="4" class="sv-box"/>
+        <text x="30" y="168" class="sv-t">消息文字</text><text x="30" y="188" class="sv-s">任何人都能随便写</text>
+        <rect x="288" y="20" width="192" height="72" rx="4" class="sv-soft"/>
+        <text x="302" y="46" class="sv-t">授权 Gate · 代码</text><text x="302" y="66" class="sv-s">查名单：能不能发起、</text><text x="302" y="82" class="sv-s">最多到哪一档</text>
+        <rect x="288" y="136" width="192" height="72" rx="4" class="sv-bot"/>
+        <text x="302" y="162" class="sv-t">评估 Assessment · 模型</text><text x="302" y="182" class="sv-s">是不是任务、归哪个仓库、</text><text x="302" y="198" class="sv-s">多急、有几成把握</text>
 
-        <rect x="580" y="76" width="170" height="72" rx="4" class="sv-box"/>
-        <text x="594" y="104" class="sv-t">决定</text><text x="594" y="124" class="sv-s">两层都通过</text><text x="594" y="140" class="sv-s">才会查群规则</text>
-        <path d="M480,56 H530 V100 H578" class="sv-ln" marker-end="url(#a1)"/>
-        <text x="536" y="76" class="sv-s">档位上限</text>
-        <path d="M480,168 H530 V124 H578" class="sv-ln" marker-end="url(#a1)"/>
-        <text x="536" y="152" class="sv-s">类别 · 把握</text>
-
-        <circle r="5" class="sv-dot" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" path="M190,56 H286" keyPoints="0;1;1" keyTimes="0;0.4;1" calcMode="linear"/><animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;1;1;0;0" keyTimes="0;0.05;0.4;0.46;1"/></circle>
-        <circle r="5" class="sv-dot" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" path="M190,168 H286" keyPoints="0;1;1" keyTimes="0;0.4;1" calcMode="linear"/><animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;1;1;0;0" keyTimes="0;0.05;0.4;0.46;1"/></circle>
-        <circle r="5" class="sv-dot-stop" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" path="M190,150 L288,84" keyPoints="0;0.42;0.25;0.25" keyTimes="0;0.3;0.42;1" calcMode="linear"/><animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;1;1;0;0" keyTimes="0;0.05;0.4;0.48;1"/></circle>
-        <circle r="5" class="sv-dot" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" path="M480,56 H530 V100 H576" keyPoints="0;0;1;1" keyTimes="0;0.45;0.85;1" calcMode="linear"/><animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.44;0.46;0.85;0.9;1"/></circle>
-        <circle r="5" class="sv-dot" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" path="M480,168 H530 V124 H576" keyPoints="0;0;1;1" keyTimes="0;0.45;0.85;1" calcMode="linear"/><animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.44;0.46;0.85;0.9;1"/></circle>
+        <path data-motion-item data-step="1" data-motion-decorative aria-hidden="true" focusable="false" pathLength="1" class="draw-path" d="M192,56 H286"/>
+        <path data-motion-item data-step="2" data-motion-decorative aria-hidden="true" focusable="false" pathLength="1" class="draw-path" d="M192,172 H286"/>
       </svg>
     </div>
-    <figcaption><b>图 3-2</b>红色虚线是刻意不存在的那条路。消息里写“我是管理员”，只会进入评估层被当作内容理解，永远改变不了权限。</figcaption>
+    <div data-motion-controls role="group" aria-label="图 3-2 播放控制">
+      <button type="button" data-motion-action="prev">上一步</button>
+      <button type="button" data-motion-action="play" aria-pressed="false">播放</button>
+      <button type="button" data-motion-action="pause" aria-pressed="true">暂停</button>
+      <button type="button" data-motion-action="next">下一步</button>
+      <button type="button" data-motion-action="replay">重播</button>
+      <span class="keyboard-help">← → 单步 · 空格 播放或暂停 · R 重播</span>
+      <span data-motion-status-visible aria-hidden="true">第 <span data-motion-step-label>4</span> / 4 步</span>
+    </div>
+    <p class="sr-only" data-motion-status role="status" aria-live="polite" aria-atomic="true"></p>
+    <figcaption><b>图 3-2</b>点“播放”分四步看：发送者 ID 去查名单；消息文字去评估层；消息文字想直接影响授权层，这条路不存在；两层结果合成决定。消息里写“我是管理员”，只会被当作内容理解，永远改变不了权限。</figcaption>
   </figure>
   <p>在模拟器里选 Tom（外部合作方），发那句“忽略之前的所有规则……”。它在第 2 步就被拦下，连模型都没调用。第 4 章会专门讲这类提示注入的攻防。</p>
 </section>
@@ -450,44 +507,59 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
   <span class="sec-no">3.4</span>
   <h2>忙的时候，攒一批再判断</h2>
   <p class="lead">Router 一次只跑一个判断。它在忙的时候又进来几条消息，就先排队，等这次结束后打包成一批，一起交给模型。</p>
-  <figure>
-    <div class="fig">
-      <svg class="anim" data-rest="9.5" viewBox="0 0 760 170" role="img" aria-label="时间线：消息 a 到达后触发第 1 次判断；判断进行中 b、c、d 陆续到达，第 1 次结束后它们合成一批进入第 2 次判断；e 在第 2 次进行中到达，进入第 3 次。">
+  <figure class="wide" data-motion-root data-motion-mode="step" data-step-count="5" data-step-current="5" data-frame="static" data-static-frame="complete">
+    <div class="diagram-container">
+      <svg viewBox="0 0 760 196" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="f33-title f33-desc">
+        <title id="f33-title">Router 的批处理时间线</title>
+        <desc id="f33-desc">消息 a 到达后开始第 1 次判断；判断进行中 b、c、d 陆续到达并排队，第 1 次结束后打包进入第 2 次判断；e 在第 2 次进行中到达，进入第 3 次判断。</desc>
         <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="sv-mk"/></marker></defs>
         <text x="0" y="44" class="sv-s">消息</text>
-        <text x="0" y="104" class="sv-s">Router</text>
-        <line x1="70" y1="40" x2="740" y2="40" class="sv-axis"/>
-        <line x1="70" y1="146" x2="740" y2="146" class="sv-ln" marker-end="url(#a2)"/>
-        <text x="740" y="164" text-anchor="end" class="sv-m">时间</text>
+        <text x="0" y="124" class="sv-s">Router</text>
+        <line x1="72" y1="40" x2="744" y2="40" class="sv-axis"/>
+        <line x1="72" y1="168" x2="742" y2="168" class="sv-ln" marker-end="url(#a2)"/>
+        <text x="744" y="188" text-anchor="end" class="sv-s">时间</text>
 
-        <g><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.0134;0.019;1"/><circle cx="80" cy="40" r="6" class="sv-dot"/><text x="80" y="24" text-anchor="middle" class="sv-m">a</text></g>
-        <g><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.215;0.22;1"/><circle cx="230" cy="40" r="6" class="sv-dot"/><text x="230" y="24" text-anchor="middle" class="sv-m">b</text></g>
-        <g><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.269;0.274;1"/><circle cx="270" cy="40" r="6" class="sv-dot"/><text x="270" y="24" text-anchor="middle" class="sv-m">c</text></g>
-        <g><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.336;0.341;1"/><circle cx="320" cy="40" r="6" class="sv-dot"/><text x="320" y="24" text-anchor="middle" class="sv-m">d</text></g>
-        <g><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.658;0.663;1"/><circle cx="560" cy="40" r="6" class="sv-dot"/><text x="560" y="24" text-anchor="middle" class="sv-m">e</text></g>
-
-        <rect x="80" y="84" width="270" height="34" rx="4" class="sv-soft"><animate attributeName="width" dur="10s" repeatCount="indefinite" values="0;0;270;270" keyTimes="0;0.0134;0.376;1"/></rect>
-        <text x="94" y="106" class="sv-s">第 1 次判断：[a]<animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.0134;0.019;1"/></text>
-        <rect x="360" y="84" width="230" height="34" rx="4" class="sv-bot"><animate attributeName="width" dur="10s" repeatCount="indefinite" values="0;0;230;230" keyTimes="0;0.39;0.698;1"/></rect>
-        <text x="374" y="106" class="sv-s">第 2 次：[b c d] 一起判断<animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.39;0.395;1"/></text>
-        <rect x="600" y="84" width="130" height="34" rx="4" class="sv-soft"><animate attributeName="width" dur="10s" repeatCount="indefinite" values="0;0;130;130" keyTimes="0;0.712;0.887;1"/></rect>
-        <text x="614" y="106" class="sv-s">第 3 次：[e]<animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.712;0.717;1"/></text>
-
-        <line x1="80" y1="47" x2="80" y2="82" class="sv-ln" marker-end="url(#a2)"><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.0134;0.019;1"/></line>
-        <g><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.39;0.395;1"/>
-          <path d="M230,47 L358,82" class="sv-ln"/>
-          <path d="M270,47 L358,82" class="sv-ln"/>
-          <path d="M320,47 L358,82" class="sv-ln" marker-end="url(#a2)"/>
+        <g data-motion-item data-step="1" aria-label="第 1 步：消息 a 到达">
+          <path d="M80,46 V102" class="sv-ln" marker-end="url(#a2)"/>
+          <circle cx="80" cy="40" r="6" class="sv-dot"/><text x="80" y="24" text-anchor="middle" class="sv-m">a</text>
         </g>
-        <path d="M560,47 L598,82" class="sv-ln" marker-end="url(#a2)"><animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0;0.712;0.717;1"/></path>
-
-        <line x1="740" y1="14" x2="740" y2="140" class="sv-play">
-          <animate attributeName="x1" dur="10s" repeatCount="indefinite" values="70;740;740" keyTimes="0;0.9;1"/>
-          <animate attributeName="x2" dur="10s" repeatCount="indefinite" values="70;740;740" keyTimes="0;0.9;1"/>
-        </line>
+        <g data-motion-item data-step="1" aria-label="第 1 次判断开始，只含 a">
+          <rect x="80" y="104" width="272" height="32" rx="4" class="sv-soft"/>
+          <text x="94" y="125" class="sv-s">第 1 次判断：[a]</text>
+        </g>
+        <g data-motion-item data-step="2" aria-label="第 2 步：判断进行中，b、c、d 到达并排队">
+          <path d="M232,46 V76 A8,8 0 0 0 240,84 H414 A8,8 0 0 1 422,92 V102" class="sv-ln" marker-end="url(#a2)"/>
+          <path d="M272,46 V64 A8,8 0 0 0 280,72 H472 A8,8 0 0 1 480,80 V102" class="sv-ln" marker-end="url(#a2)"/>
+          <path d="M320,46 V52 A8,8 0 0 0 328,60 H530 A8,8 0 0 1 538,68 V102" class="sv-ln" marker-end="url(#a2)"/>
+          <circle cx="232" cy="40" r="6" class="sv-dot"/><text x="232" y="24" text-anchor="middle" class="sv-m">b</text>
+          <circle cx="272" cy="40" r="6" class="sv-dot"/><text x="272" y="24" text-anchor="middle" class="sv-m">c</text>
+          <circle cx="320" cy="40" r="6" class="sv-dot"/><text x="320" y="24" text-anchor="middle" class="sv-m">d</text>
+        </g>
+        <g data-motion-item data-step="3" aria-label="第 3 步：第 1 次结束，b、c、d 打包进入第 2 次判断">
+          <rect x="364" y="104" width="232" height="32" rx="4" class="sv-bot"/>
+          <text x="378" y="125" class="sv-s">第 2 次：[b c d] 一起判断</text>
+        </g>
+        <g data-motion-item data-step="4" aria-label="第 4 步：e 在第 2 次进行中到达，排队">
+          <path d="M560,46 V64 A8,8 0 0 0 568,72 H664 A8,8 0 0 1 672,80 V102" class="sv-ln" marker-end="url(#a2)"/>
+          <circle cx="560" cy="40" r="6" class="sv-dot"/><text x="560" y="24" text-anchor="middle" class="sv-m">e</text>
+        </g>
+        <g data-motion-item data-step="5" aria-label="第 5 步：第 3 次判断只含 e">
+          <rect x="608" y="104" width="128" height="32" rx="4" class="sv-soft"/>
+          <text x="622" y="125" class="sv-s">第 3 次：[e]</text>
+        </g>
       </svg>
     </div>
-    <figcaption><b>图 3-3</b>蓝色虚线是当前时刻。DeepSeek 在设计文章里给过一组合成测试：约 1 条/分钟时，每次决策推理约 6.4 秒；约 40 条/分钟时，平均一批 2.8 条，每次决策约 1.6 秒。消息越密，批处理越划算。</figcaption>
+    <div data-motion-controls role="group" aria-label="图 3-3 播放控制">
+      <button type="button" data-motion-action="prev">上一步</button>
+      <button type="button" data-motion-action="play" aria-pressed="false">播放</button>
+      <button type="button" data-motion-action="pause" aria-pressed="true">暂停</button>
+      <button type="button" data-motion-action="next">下一步</button>
+      <button type="button" data-motion-action="replay">重播</button>
+      <span class="keyboard-help">← → 单步 · 空格 播放或暂停 · R 重播</span>
+      <span data-motion-status-visible aria-hidden="true">第 <span data-motion-step-label>5</span> / 5 步</span>
+    </div>
+    <p class="sr-only" data-motion-status role="status" aria-live="polite" aria-atomic="true"></p>
+    <figcaption><b>图 3-3</b>点“播放”分五步看 b、c、d 怎么排队、怎么被打包。DeepSeek 在设计文章里给过一组合成测试：约 1 条/分钟时，每次决策推理约 6.4 秒；约 40 条/分钟时，平均一批 2.8 条，每次决策约 1.6 秒。消息越密，批处理越划算。</figcaption>
   </figure>
   <p>打包还有一个好处：同一个人连发三条（“登录页有问题”“iOS 上”“键盘弹出时”），合在一起才是完整的一件事。分开判断，小橙可能会开三个任务。</p>
 </section>
@@ -499,7 +571,7 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
   <p class="lead">四个函数对应模拟器里的四步。前两个是纯函数，可以直接写单元测试；第三个是唯一调用模型的地方；第四个把结果和群规则合成最终决定。</p>
   <p class="figlabel"><b>代码 3-1</b>router.ts</p>
   <div class="code-wrap">
-    <button class="copy" type="button" id="copy">复制</button>
+    <div class="code-bar"><span>router.ts · TypeScript</span><button class="copy" type="button" id="copy">复制</button></div>
     <pre class="code" id="code-pre" tabindex="0" aria-label="router.ts 代码"></pre>
   </div>
   <p class="small muted">完整可运行的仓库（含飞书事件接入、批处理队列和测试用例）随付费课程提供。本页代码为教学简化版。</p>
@@ -523,7 +595,6 @@ figcaption b{font-weight:500;color:var(--ink);margin-right:8px}
 </section>
 
 <div class="folio">第 3 章 / 共 10 章</div>
-</article>
 </div>
 
 <script type="text/plain" id="code-src">// router.ts：先过滤，再判断
@@ -532,6 +603,7 @@ type Level = 'off' | 'L0' | 'L1' | 'L2';
 type Category = 'bug' | 'feature' | 'question' | 'risky' | 'other';
 
 const NOISE = /^(收到|好的?|ok|\+1|嗯+|哈+|👍|👌|谢谢|辛苦了?)[!！。.~]*$/i;
+const CONFIDENCE_FLOOR = 0.6;
 
 // 第 1 步：代码过滤，0 token
 export function prefilter(m: Msg, seen: Set<string>, cfg: Config): string | null {
@@ -560,13 +632,13 @@ export async function assess(batch: Msg[], llm: LLM): Promise<Assessment> {
 }
 
 // 第 4 步：结合群规则做决定
-export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
+export function decide(a: Assessment, g: GateOk, rules: Record<Category, Level>) {
   if (a.category === 'other') return { kind: 'ignore' };
   if (a.category === 'risky') return { kind: 'ask', needOwner: true }; // 高风险一律先问
   let level = rules[a.category] ?? 'L0';
   if (level === 'off') return { kind: 'ignore' };
   if (g.strength === 'explicit' && level === 'L1') level = 'L2'; // 被点名不必再问
-  if (a.confidence < 0.6 && level === 'L2') level = 'L1';       // 拿不准就先问
+  if (a.confidence < CONFIDENCE_FLOOR && level === 'L2') level = 'L1'; // 拿不准就先问
   return { kind: level === 'L2' ? 'accept' : level === 'L1' ? 'ask' : 'observe' };
 }</script>
 
@@ -576,6 +648,38 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
   var esc = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
+
+  /* ---------- syntax highlighting ---------- */
+  var KW = /^(type|const|let|var|export|function|return|if|else|async|await|as|new|null|true|false|undefined)$/;
+  var TOKEN = /(\/\/[^\n]*)|('(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\/\^(?:[^\/\\\n]|\\.)+\/[gimsuy]*)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)|([\s\S])/g;
+  function span(cls, s){ return '<span class="'+cls+'">'+esc(s)+'</span>'; }
+  function highlightTS(src){
+    var out = '', m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(src))) {
+      if (m[1]) out += span('tk-c', m[1]);
+      else if (m[2]) out += span('tk-s', m[2]);
+      else if (m[3]) out += span('tk-n', m[3]);
+      else if (m[4]) out += span('tk-n', m[4]);
+      else if (m[5]) {
+        var w = m[5], rest = src.slice(TOKEN.lastIndex), next = rest.replace(/^\s+/, '').charAt(0);
+        if (KW.test(w)) out += span('tk-k', w);
+        else if (/^(string|number|boolean|void|unknown|any)$/.test(w)) out += span('tk-t', w);
+        else if (next === '(' || /^<\w+>\(/.test(rest)) out += span('tk-f', w);
+        else if (/^[A-Z]/.test(w)) out += span('tk-t', w);
+        else out += esc(w);
+      }
+      else out += esc(m[6]);
+    }
+    return out;
+  }
+  function highlightJSON(src){
+    return src.replace(/("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?)|([\s\S])/g, function(m, str, colon, num){
+      if (str) return colon ? span('tk-p', str) + colon : span('tk-s', str);
+      if (num) return span('tk-n', num);
+      return esc(m);
+    });
+  }
 
   /* ---------- data ---------- */
   var MEMBERS = {
@@ -764,23 +868,30 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
   }
   function skipStage(name, cost){ return {name:name, cost:cost, status:'skip', res:'未执行', checks:[], model: cost.indexOf('600')>-1}; }
 
-  /* ---------- timing plan (ms at speed 1) ---------- */
-  var BIN_Y = {accept:42, ask:90, observe:138, ignore:186};
+  /* ---------- timing plan (ms at speed 1); waypoints follow the orthogonal connectors ---------- */
+  var ROUTE = {
+    accept:[[572,88],[596,88],[596,52],[694,52]],
+    ask:[[572,100],[694,100]],
+    observe:[[572,112],[596,112],[596,148],[694,148]],
+    ignore:[[572,124],[584,124],[584,196],[694,196]]
+  };
   function planFor(tr){
     var k = tr.decision.kind, pts, ev = [], reveal;
     if (tr.followup) {
-      pts = [[56,90,0],[56,70,300],[56,18,700],[600,18,1700],[638,42,2000],[694,42,2300]];
+      pts = [[56,106,0],[56,16,600],[694,16,1800],[694,52,2200]];
       ev.push([0,'color']); reveal = [300];
     } else {
-      pts = [[56,90,0],[170,90,600],[170,90,950]];
-      if (k === 'drop') { ev.push([600,'n1','hit-fail'],[600,'color']); pts.push([170,198,1600]); reveal = [600,950,950]; }
+      pts = [[56,106,0],[170,106,600],[170,106,950]];
+      if (k === 'drop') { ev.push([600,'n1','hit-fail'],[600,'color']); pts.push([170,212,1600]); reveal = [600,950,950]; }
       else {
-        ev.push([600,'n1','hit-pass']); pts.push([290,90,1400],[290,90,1750]);
-        if (k === 'stop') { ev.push([1400,'n2','hit-fail'],[1400,'color']); pts.push([290,198,2400]); reveal = [600,1400,1750]; }
+        ev.push([600,'n1','hit-pass']); pts.push([290,106,1400],[290,106,1750]);
+        if (k === 'stop') { ev.push([1400,'n2','hit-fail'],[1400,'color']); pts.push([290,212,2400]); reveal = [600,1400,1750]; }
         else {
-          var y = BIN_Y[k];
           ev.push([1400,'n2','hit-pass'],[2200,'n3','hit-think'],[2200,'cost'],[3100,'n4','hit-pass'],[3100,'color']);
-          pts.push([410,90,2200],[410,90,2700],[530,90,3100],[530,90,3450],[572,90,3600],[638,y,3950],[694,y,4250]);
+          pts.push([410,106,2200],[410,106,2700],[530,106,3100],[530,106,3400]);
+          var r = ROUTE[k], t = 3400, stepT = 800 / r.length;
+          pts.push([548, r[0][1], t + 150]); t += 150;
+          r.forEach(function(p){ t += stepT; pts.push([p[0], p[1], Math.round(t)]); });
           reveal = [600,1400,2200,3100];
         }
       }
@@ -788,7 +899,7 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
     var sp = S.speed;
     pts = pts.map(function(p){ return [p[0],p[1],p[2]*sp]; });
     ev = ev.map(function(e){ return [e[0]*sp,e[1],e[2]]; });
-    reveal = reveal.map(function(r){ return r*sp; });
+    reveal = reveal.map(function(x){ return x*sp; });
     return {pts:pts, ev:ev, reveal:reveal, total:pts[pts.length-1][2]};
   }
 
@@ -824,7 +935,7 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
     d.className = 'decision k-'+k;
     var say = tr.reply ? '<p class="say"><span>小橙在线程里说：</span>'+esc(tr.reply)+'</p>' : '<p class="say"><span>小橙不发言。</span></p>';
     d.innerHTML = '<div class="d-top"><span class="pill k-'+k+'">'+KIND[k].label+'</span><span class="why">'+esc(tr.decision.why)+'</span></div>'+say;
-    $('json-pre').textContent = tr.assessment ? JSON.stringify(tr.assessment, null, 2) : (tr.followup ? '// 追问直达任务，没有调用模型' : '// 这条在前两步就结束了，没有调用模型');
+    $('json-pre').innerHTML = tr.assessment ? highlightJSON(JSON.stringify(tr.assessment, null, 2)) : '<span class="tk-c">'+(tr.followup ? '// 追问直达任务，没有调用模型' : '// 这条在前两步就结束了，没有调用模型')+'</span>';
     var id = ++S.runId;
     if (animate && !reduce) {
       var nodes = st.querySelectorAll('.stage');
@@ -866,7 +977,7 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
     if (!animate || reduce) { finishRun(r); return; }
     var chars = Array.from(text);
     tokT.textContent = chars.slice(0,4).join('') + (chars.length > 4 ? '…' : '');
-    tok.setAttribute('transform', 'translate(56,90)');
+    tok.setAttribute('transform', 'translate(56,106)');
     tok.setAttribute('class', '');
     var pts = plan.pts, ev = plan.ev.slice().sort(function(a,b){ return a[0]-b[0]; });
     var total = plan.total, t0 = null, ei = 0;
@@ -958,12 +1069,7 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
 
   /* ---------- code ---------- */
   var src = $('code-src').textContent;
-  $('code-pre').innerHTML = src.split('\n').map(function(line){
-    var i = line.indexOf('//');
-    var code = i>-1 ? line.slice(0,i) : line, com = i>-1 ? line.slice(i) : '';
-    code = esc(code).replace(/'[^']*'/g, function(m){ return '<span class="s">'+m+'</span>'; });
-    return code + (com ? '<span class="c">'+esc(com)+'</span>' : '');
-  }).join('\n');
+  $('code-pre').innerHTML = highlightTS(src);
   function selectCode(){ var r=document.createRange(); r.selectNodeContents($('code-pre')); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }
   $('copy').addEventListener('click', function(){
     var btn=this;
@@ -997,13 +1103,203 @@ export function decide(a: Assessment, g: GateOk, rules: Record<string, Level>) {
     });
     qz.appendChild(box);
   });
-
-  if (reduce) {
-    document.querySelectorAll('svg.anim').forEach(function(s){
-      try { s.pauseAnimations(); s.setCurrentTime(parseFloat(s.getAttribute('data-rest')) || 0); } catch(e) {}
-    });
-  }
 })();
 </script>
+  <script data-diagram-controls>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      const staticOverride = params.get('motion') === 'static' || document.documentElement.dataset.motion === 'static';
+      const requestedStep = params.get('step');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      document.fonts.ready.then(() => { document.documentElement.dataset.fontsReady = 'true'; });
+
+      document.querySelectorAll('[data-motion-root]').forEach((root) => {
+        const count = Number(root.dataset.stepCount);
+        const hold = parseFloat(getComputedStyle(root).getPropertyValue('--motion-hold')) || 720;
+        const parsedStep = requestedStep !== null && /^\d+$/.test(requestedStep) ? Number(requestedStep) : null;
+        const exactStep = params.get('motion') === 'step' && Number.isSafeInteger(parsedStep) && parsedStep >= 0 && parsedStep <= count ? parsedStep : null;
+        const items = [...root.querySelectorAll('[data-motion-item]')];
+        const labels = Array.from({ length: count + 1 }, (_, index) => index === 0
+          ? 'Ready'
+          : items.filter((item) => !item.hasAttribute('data-motion-decorative') && Number(item.dataset.step) === index)
+              .map((item) => item.getAttribute('aria-label')).join('; '));
+        const controls = root.querySelector('[data-motion-controls]');
+        const status = root.querySelector('[data-motion-status]');
+        const visibleStep = root.querySelector('[data-motion-step-label]');
+        let step = count;
+        let timer = 0;
+        let playing = false;
+        let stepBeforeReduce = 0;
+        let resumeAfterReduce = root.dataset.motionMode === 'reveal';
+
+        const buttons = (action) => controls.querySelector(`[data-motion-action="${action}"]`);
+        const clearClock = () => { window.clearTimeout(timer); timer = 0; };
+        const announce = () => { status.textContent = `Step ${step} of ${count}: ${labels[step] || 'Complete'}`; };
+        const setControlsAvailable = (available) => {
+          controls.hidden = !available;
+          controls.setAttribute('aria-hidden', String(!available));
+          controls.dataset.playbackDisabled = String(!available);
+          controls.querySelectorAll('button').forEach((control) => { control.disabled = !available; });
+        };
+
+        function render(next, userInitiated = false) {
+          step = Math.max(0, Math.min(count, next));
+          root.dataset.stepCurrent = String(step);
+          root.dataset.frame = step === count ? 'end' : step === 0 ? 'start' : 'step';
+          items.forEach((item) => {
+            const itemStep = Number(item.dataset.step);
+            item.classList.toggle('is-visible', itemStep <= step);
+            item.classList.toggle('is-current', itemStep === step);
+          });
+          if (visibleStep) visibleStep.textContent = String(step);
+          const unavailable = controls.dataset.playbackDisabled === 'true';
+          buttons('prev').disabled = unavailable || step === 0;
+          buttons('next').disabled = unavailable || step === count;
+          if (userInitiated) announce();
+        }
+
+        function pause(userInitiated = false) {
+          clearClock();
+          playing = false;
+          root.classList.remove('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'false');
+          buttons('pause').setAttribute('aria-pressed', 'true');
+          if (userInitiated) status.textContent = `Paused at step ${step} of ${count}`;
+        }
+
+        function finish() {
+          pause(false);
+          root.dataset.frame = 'end';
+          status.textContent = `Complete · step ${count} of ${count}`;
+        }
+
+        function tick() {
+          if (!playing) return;
+          if (step >= count) { finish(); return; }
+          render(step + 1, false);
+          if (step >= count) { finish(); return; }
+          timer = window.setTimeout(tick, hold);
+        }
+
+        function play(fromStart = false, userInitiated = false) {
+          clearClock();
+          if (fromStart || step >= count) render(0, userInitiated);
+          playing = true;
+          root.classList.add('is-playing');
+          buttons('play').setAttribute('aria-pressed', 'true');
+          buttons('pause').setAttribute('aria-pressed', 'false');
+          timer = window.setTimeout(tick, hold);
+        }
+
+        controls.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-motion-action]');
+          if (!button) return;
+          const action = button.dataset.motionAction;
+          if (action === 'play') play(false, true);
+          if (action === 'pause') pause(true);
+          if (action === 'replay') play(true, true);
+          if (action === 'prev') { pause(false); render(step - 1, true); }
+          if (action === 'next') { pause(false); render(step + 1, true); }
+        });
+
+        root.addEventListener('keydown', (event) => {
+          if (event.target.matches('input, textarea, select, a[href]')) return;
+          const keys = { ArrowLeft: step - 1, ArrowRight: step + 1, Home: 0, End: count };
+          if (event.code === 'Space' && !event.target.closest('button')) {
+            event.preventDefault();
+            playing ? pause(true) : play(false, true);
+            return;
+          }
+          if (!event.ctrlKey && !event.metaKey && !event.altKey && event.key.toLowerCase() === 'r') {
+            event.preventDefault();
+            play(true, true);
+            return;
+          }
+          if (!(event.key in keys)) return;
+          event.preventDefault();
+          pause(false);
+          render(keys[event.key], true);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden' && playing) pause(false);
+        });
+        reduce.addEventListener('change', (event) => {
+          if (event.matches && root.dataset.motionState !== 'reduced') {
+            stepBeforeReduce = step;
+            resumeAfterReduce = playing;
+          }
+          pause(false);
+          if (event.matches) {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'reduced';
+            status.textContent = 'Reduced motion · complete static frame · playback controls unavailable';
+          } else if (staticOverride || root.dataset.motionMode === 'none') {
+            setControlsAvailable(false);
+            render(count, false);
+            root.dataset.frame = 'static';
+            root.dataset.motionState = 'static';
+            status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+          } else {
+            delete root.dataset.motionState;
+            if (exactStep !== null) {
+              setControlsAvailable(false);
+              render(exactStep, false);
+              root.dataset.frame = 'step';
+              root.dataset.motionState = 'test';
+              status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+            } else {
+              setControlsAvailable(true);
+              render(stepBeforeReduce, false);
+              status.textContent = `Ready · step ${step} of ${count}`;
+              if (resumeAfterReduce && root.dataset.motionMode === 'reveal') {
+                play(false, false);
+              }
+            }
+            resumeAfterReduce = false;
+          }
+        });
+
+        if (staticOverride) {
+          document.documentElement.dataset.motion = 'static';
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = 'static';
+          status.textContent = 'Static frame · complete diagram · playback controls unavailable';
+        } else if (reduce.matches || root.dataset.motionMode === 'none') {
+          pause(false);
+          setControlsAvailable(false);
+          render(count, false);
+          root.dataset.frame = 'static';
+          root.dataset.motionState = reduce.matches ? 'reduced' : 'static';
+          status.textContent = reduce.matches
+            ? 'Reduced motion · complete static frame · playback controls unavailable'
+            : 'Static frame · complete diagram · playback controls unavailable';
+        } else if (exactStep !== null) {
+          document.documentElement.dataset.motion = 'step';
+          pause(false);
+          setControlsAvailable(false);
+          render(exactStep, false);
+          root.dataset.frame = 'step';
+          root.dataset.motionState = 'test';
+          status.textContent = `Test frame · step ${step} of ${count} · playback controls unavailable`;
+        } else if (root.dataset.motionMode === 'reveal') {
+          setControlsAvailable(true);
+          render(0, false);
+          play(false, false);
+        } else {
+          pause(false);
+          setControlsAvailable(true);
+          render(0, false);
+          status.textContent = `Ready · step 0 of ${count}`;
+        }
+        root.classList.add('motion-ready');
+      });
+    })();
+  </script>
 </body>
 </html>
